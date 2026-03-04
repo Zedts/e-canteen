@@ -13,13 +13,13 @@ export default async function Page({ searchParams }: PageProps) {
   const resolvedParams = searchParams ? await searchParams : undefined;
   const view = resolvedParams?.view;
 
-  if (view === 'login') {
+  if (view === 'home') {
     return (
-        <Login />
+        <Home />
     );
   }
 
   return (
-        <Home />
+        <Login />
   );
 }

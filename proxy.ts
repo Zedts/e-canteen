@@ -7,8 +7,8 @@ export function proxy(request: NextRequest) {
 
     url.pathname = '/';
 
-    if (pathname === '/login') {
-    url.searchParams.set('view', 'login');
+    if (pathname === '/home') {
+    url.searchParams.set('view', 'home');
     return NextResponse.rewrite(url);
     }
 }
