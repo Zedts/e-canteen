@@ -2,7 +2,9 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
+import { registerUser } from "@/src/lib/actions";
 import { Button }        from "@/src/components/ui/button";
 import { AuthCard }      from "@/src/components/auth/auth-card";
 import { BrandPanel }    from "@/src/components/auth/brand-panel";
@@ -10,18 +12,22 @@ import { FormField }     from "@/src/components/auth/form-field";
 import { PasswordField } from "@/src/components/auth/password-field";
 
 export default function Register() {
+  const router = useRouter();
+
   const [name, setName]                   = useState("");
   const [email, setEmail]                 = useState("");
   const [password, setPassword]           = useState("");
   const [confirmPassword, setConfirm]     = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [serverError, setServerError]     = useState<string | null>(null);
   const [isLoading, setIsLoading]         = useState(false);
 
-  function clearPasswordError() {
+  function clearErrors() {
     if (passwordError) setPasswordError("");
+    if (serverError) setServerError(null);
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -30,8 +36,17 @@ export default function Register() {
     }
 
     setIsLoading(true);
-    // TODO: wire up registration
-    setTimeout(() => setIsLoading(false), 1500);
+    setServerError(null);
+
+    const result = await registerUser(name, email, password);
+
+    if (!result.ok) {
+      setServerError(result.error);
+      setIsLoading(false);
+      return;
+    }
+
+    router.push("/");
   }
 
   return (
@@ -55,6 +70,12 @@ export default function Register() {
           }
         >
           <form onSubmit={handleSubmit} className="space-y-5">
+            {serverError && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                {serverError}
+              </p>
+            )}
+
             <FormField
               id="name"
               label="Nama Lengkap"
@@ -76,14 +97,14 @@ export default function Register() {
               id="password"
               label="Kata Sandi"
               value={password}
-              onChange={(v) => { setPassword(v); clearPasswordError(); }}
+              onChange={(v) => { setPassword(v); clearErrors(); }}
             />
 
             <PasswordField
               id="confirmPassword"
               label="Konfirmasi Kata Sandi"
               value={confirmPassword}
-              onChange={(v) => { setConfirm(v); clearPasswordError(); }}
+              onChange={(v) => { setConfirm(v); clearErrors(); }}
               error={passwordError}
             />
 

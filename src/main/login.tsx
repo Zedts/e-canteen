@@ -2,26 +2,46 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signIn, getSession } from "next-auth/react";
 
-import { Button }   from "@/src/components/ui/button";
-import { Checkbox } from "@/src/components/ui/checkbox";
-import { Label }    from "@/src/components/ui/label";
+import { Button }        from "@/src/components/ui/button";
+import { Checkbox }      from "@/src/components/ui/checkbox";
+import { Label }         from "@/src/components/ui/label";
 import { AuthCard }      from "@/src/components/auth/auth-card";
 import { BrandPanel }    from "@/src/components/auth/brand-panel";
 import { FormField }     from "@/src/components/auth/form-field";
 import { PasswordField } from "@/src/components/auth/password-field";
 
 export default function Login() {
+  const router = useRouter();
+
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError]       = useState<string | null>(null);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: wire up authentication
-    setTimeout(() => setIsLoading(false), 1500);
+    setError(null);
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Email atau kata sandi salah.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Fetch the freshly created session to read role for redirect
+    const session = await getSession();
+    router.push(session?.user.role === "ADMIN" ? "/home-admin" : "/home-user");
   }
 
   return (
@@ -45,6 +65,12 @@ export default function Login() {
           }
         >
           <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                {error}
+              </p>
+            )}
+
             <FormField
               id="email"
               label="Alamat Email"
