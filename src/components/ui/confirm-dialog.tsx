@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { AlertTriangle, X } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 
@@ -43,11 +44,12 @@ export function ConfirmDialog({
     return () => document.removeEventListener("keydown", handler);
   }, [open, onCancel]);
 
-  if (!open) return null;
+  // Skip during SSR — portal requires a real DOM target
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-[500] flex items-center justify-center px-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-dialog-title"
@@ -113,6 +115,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

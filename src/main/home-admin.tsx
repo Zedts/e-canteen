@@ -2,29 +2,64 @@
 
 import { useState } from "react";
 import { signOut } from "next-auth/react";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { Clock } from "lucide-react";
+import { AdminSidebar } from "@/src/components/admin/admin-sidebar";
+import { AdminHeader } from "@/src/components/admin/admin-header";
+import { DashboardPage } from "@/src/components/admin/dashboard-page";
 import { ConfirmDialog } from "@/src/components/ui/confirm-dialog";
+import type { AdminPage } from "@/src/types/admin";
+
+// Placeholder for pages not yet implemented
+function ComingSoonPage({ title }: { title: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <Clock className="w-12 h-12 text-gray-300 mb-4" />
+      <h2 className="font-serif text-2xl font-bold text-gray-600 mb-2">
+        {title}
+      </h2>
+      <p className="text-sm text-gray-400">
+        Halaman ini sedang dalam pengembangan.
+      </p>
+    </div>
+  );
+}
+
+function PageContent({ page }: { page: AdminPage }) {
+  switch (page) {
+    case "dashboard":
+      return <DashboardPage />;
+    case "queue":
+      return <ComingSoonPage title="Antrean Pesanan" />;
+    case "menu":
+      return <ComingSoonPage title="Manajemen Menu" />;
+  }
+}
+
+// Hardcoded for now; will come from DB when queue page is implemented
+const PENDING_ORDER_COUNT = 3;
 
 export default function HomeAdmin() {
+  const [activePage, setActivePage] = useState<AdminPage>("dashboard");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans flex flex-col items-center justify-center gap-6 px-4">
-      <div className="text-center">
-        <div className="w-16 h-16 rounded-2xl bg-brand-100 flex items-center justify-center mx-auto mb-4">
-          <ShieldCheck className="w-8 h-8 text-brand-600" />
-        </div>
-        <h1 className="font-serif text-3xl font-bold text-gray-900">Admin Panel</h1>
-        <p className="text-gray-500 mt-2 text-sm">Anda masuk sebagai administrator.</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 font-sans flex">
+      <AdminSidebar
+        activePage={activePage}
+        pendingOrderCount={PENDING_ORDER_COUNT}
+        isMobileOpen={isMobileMenuOpen}
+        onNavigate={setActivePage}
+        onLogout={() => setShowLogoutDialog(true)}
+        onMobileClose={() => setIsMobileMenuOpen(false)}
+      />
 
-      <button
-        onClick={() => setShowLogoutDialog(true)}
-        className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 rounded-2xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-soft transition-all"
-      >
-        <LogOut className="w-4 h-4" />
-        Keluar
-      </button>
+      <div className="flex-1 flex flex-col min-w-0">
+        <AdminHeader onMenuOpen={() => setIsMobileMenuOpen(true)} />
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
+          <PageContent page={activePage} />
+        </main>
+      </div>
 
       <ConfirmDialog
         open={showLogoutDialog}

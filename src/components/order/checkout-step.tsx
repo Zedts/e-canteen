@@ -68,63 +68,71 @@ export function CheckoutStep({ user, slot, onBack }: CheckoutStepProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans flex flex-col">
-      <div className="flex-1 max-w-3xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pb-10 flex flex-col gap-6 animate-fade-in">
+    <>
+      <div className="min-h-screen bg-gray-50 font-sans flex flex-col">
+        <div className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 pb-10 animate-fade-in">
 
-        <Header onBack={onBack} />
+          <Header onBack={onBack} />
 
-        <OrderSummary
-          entries={cartEntries}
-          slot={slot}
-          total={cartTotal}
-          onAdd={add}
-          onRemove={remove}
-          onRemoveAll={(id, name) => setPendingRemove({ id, name })}
-        />
+          <div className="mt-6 flex flex-col lg:grid lg:grid-cols-[1fr_380px] gap-6 items-start">
+            {/* Left — order summary */}
+            <OrderSummary
+              entries={cartEntries}
+              slot={slot}
+              total={cartTotal}
+              onAdd={add}
+              onRemove={remove}
+              onRemoveAll={(id, name) => setPendingRemove({ id, name })}
+            />
 
-        <PaymentMethod
-          balance={user.balance}
-          remaining={remaining}
-          canAfford={canAfford}
-        />
+            {/* Right — payment + action */}
+            <div className="flex flex-col gap-5 w-full">
+              <PaymentMethod
+                balance={user.balance}
+                remaining={remaining}
+                canAfford={canAfford}
+              />
 
-        {status === "error" && (
-          <p className="text-sm text-red-600 font-medium bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-            {errorMessage}
-          </p>
-        )}
+              {status === "error" && (
+                <p className="text-sm text-red-600 font-medium bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+                  {errorMessage}
+                </p>
+              )}
 
-        <ConfirmDialog
-          open={pendingRemove !== null}
-          title="Hapus dari pesanan?"
-          description={pendingRemove ? `"${pendingRemove.name}" akan dihapus dari pesananmu.` : undefined}
-          confirmLabel="Hapus"
-          cancelLabel="Batal"
-          variant="destructive"
-          onConfirm={() => {
-            if (pendingRemove) removeAll(pendingRemove.id);
-            setPendingRemove(null);
-          }}
-          onCancel={() => setPendingRemove(null)}
-        />
+              <button
+                onClick={handlePayment}
+                disabled={!canSubmit}
+                className="w-full py-4 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl font-bold text-lg shadow-float transition-all hover:-translate-y-0.5 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:translate-y-0 flex items-center justify-center gap-2"
+              >
+                {status === "loading" ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Memproses...
+                  </>
+                ) : (
+                  "Bayar & Konfirmasi"
+                )}
+              </button>
+            </div>
+          </div>
 
-        <button
-          onClick={handlePayment}
-          disabled={!canSubmit}
-          className="w-full py-4 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl font-bold text-lg shadow-float transition-all hover:-translate-y-0.5 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed disabled:translate-y-0 flex items-center justify-center gap-2"
-        >
-          {status === "loading" ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Memproses...
-            </>
-          ) : (
-            "Bayar & Konfirmasi"
-          )}
-        </button>
-
+        </div>
       </div>
-    </div>
+
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        title="Hapus dari pesanan?"
+        description={pendingRemove ? `"${pendingRemove.name}" akan dihapus dari pesananmu.` : undefined}
+        confirmLabel="Hapus"
+        cancelLabel="Batal"
+        variant="destructive"
+        onConfirm={() => {
+          if (pendingRemove) removeAll(pendingRemove.id);
+          setPendingRemove(null);
+        }}
+        onCancel={() => setPendingRemove(null)}
+      />
+    </>
   );
 }
 

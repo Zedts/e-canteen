@@ -22,6 +22,15 @@ export function GlobalCartFab() {
 
   if (!shouldRender) return null;
 
+  function handleFabClick() {
+    // Desktop: navigate directly to order page; Mobile: open bottom sheet
+    if (window.innerWidth >= 1024) {
+      router.push("/order");
+    } else {
+      setOpen(true);
+    }
+  }
+
   function handleCheckout() {
     setOpen(false);
     router.push("/order");
@@ -29,10 +38,10 @@ export function GlobalCartFab() {
 
   return (
     <>
-      {/* FAB Button */}
+      {/* FAB Button — visible on all screen sizes, always pinned bottom-right */}
       <button
-        onClick={() => setOpen(true)}
-        className="lg:hidden fixed bottom-24 right-5 w-14 h-14 bg-brand-500 text-white rounded-full shadow-float flex items-center justify-center z-[60] hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/30 transition-all"
+        onClick={handleFabClick}
+        className="fixed bottom-24 right-5 lg:bottom-6 w-14 h-14 bg-brand-500 text-white rounded-full shadow-float flex items-center justify-center z-[60] hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/30 transition-all"
         aria-label="Lihat keranjang"
       >
         <ShoppingBag className="w-6 h-6" />
