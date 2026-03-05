@@ -20,6 +20,7 @@ import {
 
 interface OrderProps {
   user: {
+    id: string;
     name?: string | null;
     email?: string | null;
     balance: number;
@@ -35,7 +36,7 @@ export default function Order({ user }: OrderProps) {
     MENU_CATEGORIES[0],
   );
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot>(TIME_SLOTS[0]);
-  const { cart, cartEntries, cartTotal, totalItems, add, remove, clear } =
+  const { cart, cartEntries, cartTotal, totalItems, add, remove, removeAll } =
     useCartContext();
 
   const filteredItems = MENU_ITEMS.filter(
@@ -46,14 +47,8 @@ export default function Order({ user }: OrderProps) {
     return (
       <CheckoutStep
         user={user}
-        cartEntries={cartEntries}
         slot={selectedSlot}
-        total={cartTotal}
         onBack={() => setStep("selecting")}
-        onSuccess={() => {
-          clear();
-          setStep("selecting");
-        }}
       />
     );
   }
@@ -103,6 +98,7 @@ export default function Order({ user }: OrderProps) {
             total={cartTotal}
             onAdd={add}
             onRemove={remove}
+            onRemoveAll={removeAll}
             onCheckout={() => setStep("checkout")}
           />
         </div>

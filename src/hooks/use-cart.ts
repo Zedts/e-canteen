@@ -20,6 +20,14 @@ export function useCart() {
     });
   }, []);
 
+  const removeAll = useCallback((id: string) => {
+    setCart((c) => {
+      const next = { ...c };
+      delete next[id];
+      return next;
+    });
+  }, []);
+
   const clear = useCallback(() => setCart({}), []);
 
   // Used by CartContext to bulk-restore a persisted cart snapshot
@@ -27,5 +35,5 @@ export function useCart() {
 
   const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
 
-  return { cart, add, remove, clear, restore, totalItems };
+  return { cart, add, remove, removeAll, clear, restore, totalItems };
 }

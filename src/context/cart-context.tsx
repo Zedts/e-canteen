@@ -19,6 +19,7 @@ interface CartContextValue {
   totalItems: number;
   add: (id: string) => void;
   remove: (id: string) => void;
+  removeAll: (id: string) => void;
   clear: () => void;
 }
 
@@ -35,7 +36,7 @@ function loadCart(): Cart {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const { cart, add, remove, clear, restore, totalItems } = useCart();
+  const { cart, add, remove, removeAll, clear, restore, totalItems } = useCart();
 
   // Hydrate from sessionStorage on first client render
   useEffect(() => {
@@ -60,7 +61,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ cart, cartEntries, cartTotal, totalItems, add, remove, clear }}
+      value={{ cart, cartEntries, cartTotal, totalItems, add, remove, removeAll, clear }}
     >
       {children}
     </CartContext.Provider>

@@ -6,7 +6,7 @@ import { Home, ShoppingBag, ClipboardList } from "lucide-react";
 const TABS = [
   { key: "home",     label: "Beranda",  Icon: Home,          href: "/home-user" },
   { key: "preorder", label: "Pesan",    Icon: ShoppingBag,   href: "/order"     },
-  { key: "history",  label: "Riwayat",  Icon: ClipboardList, href: "/home-user" },
+  { key: "history",  label: "Riwayat",  Icon: ClipboardList, href: "/history"   },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];

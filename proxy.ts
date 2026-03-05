@@ -26,4 +26,9 @@ export function proxy(request: NextRequest) {
         url.searchParams.set('view', 'order');
         return NextResponse.rewrite(url);
     }
+
+    if (pathname === '/history') {
+        url.searchParams.set('view', 'history');
+        return NextResponse.rewrite(url);
+    }
 }

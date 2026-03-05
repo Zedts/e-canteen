@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import type { CartEntry } from "@/src/types/order";
 import type { TimeSlot } from "@/src/lib/menu-data";
 import { CartItemRow } from "./cart-item-row";
 import { CartFooter } from "./cart-footer";
+import { ConfirmDialog } from "@/src/components/ui/confirm-dialog";
 
 interface CartSidebarProps {
   entries: CartEntry[];
@@ -12,6 +14,7 @@ interface CartSidebarProps {
   total: number;
   onAdd: (id: string) => void;
   onRemove: (id: string) => void;
+  onRemoveAll: (id: string) => void;
   onCheckout: () => void;
 }
 
@@ -21,8 +24,10 @@ export function CartSidebar({
   total,
   onAdd,
   onRemove,
+  onRemoveAll,
   onCheckout,
 }: CartSidebarProps) {
+  const [pendingRemove, setPendingRemove] = useState<{ id: string; name: string } | null>(null);
   const isEmpty = entries.length === 0;
 
   return (
@@ -30,7 +35,7 @@ export function CartSidebar({
       <div className="sticky top-24 bg-white border border-gray-200 rounded-3xl p-6 shadow-float">
         <h2 className="font-serif text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
           <ShoppingBag className="w-5 h-5 text-gray-400" />
-          Pesanan Anda
+          Keranjang Anda
         </h2>
 
         <div className="min-h-[150px] max-h-[40vh] overflow-y-auto space-y-4 mb-6 pr-1">
@@ -43,6 +48,7 @@ export function CartSidebar({
                 entry={{ item, quantity }}
                 onAdd={() => onAdd(item.id)}
                 onRemove={() => onRemove(item.id)}
+                onRemoveAll={() => setPendingRemove({ id: item.id, name: item.name })}
               />
             ))
           )}
@@ -57,6 +63,20 @@ export function CartSidebar({
           />
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        title="Hapus dari keranjang?"
+        description={pendingRemove ? `"${pendingRemove.name}" akan dihapus dari keranjangmu.` : undefined}
+        confirmLabel="Hapus"
+        cancelLabel="Batal"
+        variant="destructive"
+        onConfirm={() => {
+          if (pendingRemove) onRemoveAll(pendingRemove.id);
+          setPendingRemove(null);
+        }}
+        onCancel={() => setPendingRemove(null)}
+      />
     </aside>
   );
 }

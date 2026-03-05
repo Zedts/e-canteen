@@ -1,4 +1,4 @@
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Trash2 } from "lucide-react";
 import type { CartEntry } from "@/src/types/order";
 import { formatCurrency } from "@/src/lib/utils";
 
@@ -6,9 +6,10 @@ interface CartItemRowProps {
   entry: CartEntry;
   onAdd: () => void;
   onRemove: () => void;
+  onRemoveAll?: () => void;
 }
 
-export function CartItemRow({ entry, onAdd, onRemove }: CartItemRowProps) {
+export function CartItemRow({ entry, onAdd, onRemove, onRemoveAll }: CartItemRowProps) {
   const { item, quantity } = entry;
 
   return (
@@ -36,6 +37,14 @@ export function CartItemRow({ entry, onAdd, onRemove }: CartItemRowProps) {
         >
           <Plus className="w-3 h-3 text-white" />
         </button>
+        {onRemoveAll && (
+          <button
+            onClick={onRemoveAll}
+            className="w-6 h-6 rounded-full bg-gray-100 hover:bg-red-50 hover:text-red-500 text-gray-400 flex items-center justify-center transition ml-1"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        )}
       </div>
     </div>
   );

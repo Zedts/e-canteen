@@ -1,11 +1,13 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/src/lib/auth";
+import { getUserOrdersSafe } from "@/src/lib/orders";
 import HomeUser from "@/src/main/home-user";
 import HomeAdmin from "@/src/main/home-admin";
 import Login from "@/src/main/login";
 import Register from "@/src/main/register";
 import Order from "@/src/main/order";
+import History from "@/src/main/history";
 
 type SearchParams = { view?: string };
 type PageProps = { searchParams?: Promise<SearchParams> };
@@ -43,6 +45,12 @@ export default async function Page({ searchParams }: PageProps) {
   if (view === "order") {
     if (session.user.role === "ADMIN") redirect("/home-admin");
     return <Order user={session.user} />;
+  }
+
+  if (view === "history") {
+    if (session.user.role === "ADMIN") redirect("/home-admin");
+    const orders = await getUserOrdersSafe(session.user.id);
+    return <History user={session.user} orders={orders ?? []} dbUnavailable={orders === null} />;
   }
 
   redirect("/");

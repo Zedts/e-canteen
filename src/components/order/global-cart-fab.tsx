@@ -5,16 +5,17 @@ import { useRouter, usePathname } from "next/navigation";
 import { ShoppingBag, X, ArrowRight } from "lucide-react";
 import { useCartContext } from "@/src/context/cart-context";
 import { CartItemRow } from "@/src/components/order/cart-item-row";
+import { ConfirmDialog } from "@/src/components/ui/confirm-dialog";
 import { formatCurrency } from "@/src/lib/utils";
 
-// This component is mounted globally in layout.tsx and stays alive
-// across all page navigations. It hides itself on /order since that
-// page has its own checkout bar for mobile.
+// Mounted globally in layout.tsx — stays alive across navigations.
+// Hidden on /order since that page has its own cart UI.
 export function GlobalCartFab() {
   const [open, setOpen] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<{ id: string; name: string } | null>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const { cartEntries, cartTotal, totalItems, add, remove } = useCartContext();
+  const { cartEntries, cartTotal, totalItems, add, remove, removeAll } = useCartContext();
 
   const isOnOrderPage = pathname === "/order";
   const shouldRender = totalItems > 0 && !isOnOrderPage;
@@ -75,6 +76,7 @@ export function GlobalCartFab() {
               entry={{ item, quantity }}
               onAdd={() => add(item.id)}
               onRemove={() => remove(item.id)}
+              onRemoveAll={() => setPendingRemove({ id: item.id, name: item.name })}
             />
           ))}
         </div>
@@ -95,6 +97,20 @@ export function GlobalCartFab() {
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        title="Hapus dari keranjang?"
+        description={pendingRemove ? `"${pendingRemove.name}" akan dihapus dari keranjangmu.` : undefined}
+        confirmLabel="Hapus"
+        cancelLabel="Batal"
+        variant="destructive"
+        onConfirm={() => {
+          if (pendingRemove) removeAll(pendingRemove.id);
+          setPendingRemove(null);
+        }}
+        onCancel={() => setPendingRemove(null)}
+      />
     </>
   );
 }
