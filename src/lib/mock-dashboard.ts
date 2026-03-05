@@ -1,4 +1,5 @@
 import { MENU_ITEMS, type MenuItem } from "./menu-data";
+import type { QueueOrder } from "@/src/types/admin";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -54,3 +55,40 @@ export const TOP_MENU_ITEMS: TopMenuItem[] = TOP_ITEM_IDS.map((id) => {
   const item = MENU_ITEMS.find((m) => m.id === id)!;
   return { ...item, soldCount: SOLD_COUNTS[id] };
 });
+
+// ─── Mock Queue Orders ────────────────────────────────────────────────────────
+
+export const MOCK_QUEUE_ORDERS: QueueOrder[] = [
+  {
+    id: "#A-001",
+    customerName: "Budi Santoso",
+    className: "XII IPA 1",
+    slot: "break1",
+    status: "PREPARING",
+    items: ["2x Classic Cheeseburger", "1x Es Teh Manis"],
+  },
+  {
+    id: "#A-002",
+    customerName: "Dewi Rahayu",
+    className: "XI IPS 2",
+    slot: "break1",
+    status: "READY",
+    items: ["1x Nasi Goreng Spesial", "1x Iced Latte"],
+  },
+  {
+    id: "#A-003",
+    customerName: "Eko Prasetyo",
+    className: "X MIPA 3",
+    slot: "break2",
+    status: "PREPARING",
+    items: ["1x Ayam Geprek", "1x Jus Alpukat Susu"],
+  },
+  {
+    id: "#A-004",
+    customerName: "Sari Indah",
+    className: "XI IPA 2",
+    slot: "break1",
+    status: "PREPARING",
+    items: ["1x Mie Goreng", "2x Pisang Goreng Crispy"],
+  },
+];

@@ -2,62 +2,91 @@
 
 import { useState } from "react";
 import { signOut } from "next-auth/react";
-import { Clock } from "lucide-react";
 import { AdminSidebar } from "@/src/components/admin/admin-sidebar";
 import { AdminHeader } from "@/src/components/admin/admin-header";
 import { DashboardPage } from "@/src/components/admin/dashboard-page";
+import { QueuePage } from "@/src/components/admin/queue-page";
+import { MenuPage } from "@/src/components/admin/menu-page";
 import { ConfirmDialog } from "@/src/components/ui/confirm-dialog";
-import type { AdminPage } from "@/src/types/admin";
+import { MOCK_QUEUE_ORDERS } from "@/src/lib/mock-dashboard";
+import type { AdminPage, QueueOrder } from "@/src/types/admin";
 
-// Placeholder for pages not yet implemented
-function ComingSoonPage({ title }: { title: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <Clock className="w-12 h-12 text-gray-300 mb-4" />
-      <h2 className="font-serif text-2xl font-bold text-gray-600 mb-2">
-        {title}
-      </h2>
-      <p className="text-sm text-gray-400">
-        Halaman ini sedang dalam pengembangan.
-      </p>
-    </div>
-  );
+// ─── Page router ──────────────────────────────────────────────────────────────
+
+interface PageContentProps {
+  page: AdminPage;
+  queueOrders: QueueOrder[];
+  onMarkReady: (id: string) => void;
+  onCompleteOrder: (id: string) => void;
 }
 
-function PageContent({ page }: { page: AdminPage }) {
+function PageContent({
+  page,
+  queueOrders,
+  onMarkReady,
+  onCompleteOrder,
+}: PageContentProps) {
   switch (page) {
     case "dashboard":
       return <DashboardPage />;
     case "queue":
-      return <ComingSoonPage title="Antrean Pesanan" />;
+      return (
+        <QueuePage
+          orders={queueOrders}
+          onMarkReady={onMarkReady}
+          onComplete={onCompleteOrder}
+        />
+      );
     case "menu":
-      return <ComingSoonPage title="Manajemen Menu" />;
+      return <MenuPage />;
   }
 }
 
-// Hardcoded for now; will come from DB when queue page is implemented
-const PENDING_ORDER_COUNT = 3;
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function HomeAdmin() {
   const [activePage, setActivePage] = useState<AdminPage>("dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [queueOrders, setQueueOrders] = useState<QueueOrder[]>(MOCK_QUEUE_ORDERS);
+
+  const pendingOrderCount = queueOrders.filter(
+    (o) => o.status === "PREPARING",
+  ).length;
+
+  function markReady(id: string) {
+    setQueueOrders((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, status: "READY" as const } : o)),
+    );
+  }
+
+  function completeOrder(id: string) {
+    setQueueOrders((prev) => prev.filter((o) => o.id !== id));
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans flex">
       <AdminSidebar
         activePage={activePage}
-        pendingOrderCount={PENDING_ORDER_COUNT}
+        pendingOrderCount={pendingOrderCount}
         isMobileOpen={isMobileMenuOpen}
+        isCollapsed={isSidebarCollapsed}
         onNavigate={setActivePage}
         onLogout={() => setShowLogoutDialog(true)}
         onMobileClose={() => setIsMobileMenuOpen(false)}
+        onToggleCollapse={() => setIsSidebarCollapsed((v) => !v)}
       />
 
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader onMenuOpen={() => setIsMobileMenuOpen(true)} />
         <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
-          <PageContent page={activePage} />
+          <PageContent
+            page={activePage}
+            queueOrders={queueOrders}
+            onMarkReady={markReady}
+            onCompleteOrder={completeOrder}
+          />
         </main>
       </div>
 
