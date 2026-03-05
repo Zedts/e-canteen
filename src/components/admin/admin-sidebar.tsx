@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   BookOpen,
+  FileBarChart2,
   LogOut,
   X,
   ChevronLeft,
@@ -50,14 +51,10 @@ export function AdminSidebar({
   const adminName = session?.user?.name ?? "Administrator";
 
   const navItems: NavItem[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    {
-      id: "queue",
-      label: "Antrean Pesanan",
-      icon: ClipboardList,
-      badge: pendingOrderCount,
-    },
-    { id: "menu", label: "Manajemen Menu", icon: BookOpen },
+    { id: "dashboard", label: "Dashboard",        icon: LayoutDashboard },
+    { id: "queue",     label: "Antrean Pesanan",  icon: ClipboardList, badge: pendingOrderCount },
+    { id: "menu",      label: "Manajemen Menu",   icon: BookOpen },
+    { id: "laporan",   label: "Laporan",          icon: FileBarChart2 },
   ];
 
   function handleNavigate(page: AdminPage) {
@@ -88,10 +85,10 @@ export function AdminSidebar({
         <div
           className={cn(
             "border-b border-gray-100 flex items-center",
-            isCollapsed ? "lg:justify-center p-4" : "p-6 justify-between",
+            isCollapsed ? "lg:justify-center p-3" : "px-6 py-5 justify-between",
           )}
         >
-          {/* Full logo — visible on mobile and expanded desktop */}
+          {/* Full logo — hidden when collapsed on desktop */}
           <div className={cn(isCollapsed && "lg:hidden")}>
             <h1 className="font-serif font-bold text-2xl tracking-tight text-gray-900">
               E-Kantin<span className="text-brand-500">.</span>
@@ -101,17 +98,10 @@ export function AdminSidebar({
             </p>
           </div>
 
-          {/* Icon mark — only visible when collapsed on desktop */}
-          <div className={cn("hidden", isCollapsed && "lg:block")}>
-            <span className="font-serif font-bold text-2xl tracking-tight text-gray-900">
-              E<span className="text-brand-500">.</span>
-            </span>
-          </div>
-
-          {/* Desktop collapse toggle */}
+          {/* Collapse / expand toggle (desktop only) */}
           <button
             onClick={onToggleCollapse}
-            className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="hidden lg:flex items-center justify-center w-8 h-8 rounded-xl text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
             aria-label={isCollapsed ? "Perluas sidebar" : "Ciutkan sidebar"}
           >
             {isCollapsed ? (
@@ -143,30 +133,29 @@ export function AdminSidebar({
                 onClick={() => handleNavigate(id)}
                 title={isCollapsed ? label : undefined}
                 className={cn(
-                  "w-full flex items-center py-3 rounded-xl text-sm font-medium transition-colors",
-                  isCollapsed
-                    ? "lg:justify-center lg:px-0 px-4 justify-start gap-3"
-                    : "px-4 justify-between",
+                  "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                  isCollapsed && "lg:justify-center lg:px-0",
                   isActive
                     ? "bg-gray-900 text-white"
                     : "text-gray-600 hover:bg-gray-50",
                 )}
               >
-                {/* Icon + optional badge dot (collapsed) + label */}
-                <div className="relative flex items-center gap-3">
-                  <Icon className="w-5 h-5 shrink-0" />
+                <div className="relative shrink-0">
+                  <Icon className="w-5 h-5" />
                   {hasVisibleBadge && (
                     <span
                       className={cn(
-                        "absolute -top-1.5 -right-1.5 w-2 h-2 rounded-full bg-red-500",
+                        "absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500",
                         isCollapsed ? "hidden lg:block" : "hidden",
                       )}
                     />
                   )}
-                  <span className={cn(isCollapsed && "lg:hidden")}>{label}</span>
                 </div>
 
-                {/* Inline badge count — only when expanded */}
+                <span className={cn("flex-1 text-left truncate", isCollapsed && "lg:hidden")}>
+                  {label}
+                </span>
+
                 {hasVisibleBadge && (
                   <span
                     className={cn(
@@ -213,8 +202,8 @@ export function AdminSidebar({
             onClick={onLogout}
             title={isCollapsed ? "Keluar" : undefined}
             className={cn(
-              "w-full flex items-center gap-3 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors",
-              isCollapsed ? "lg:justify-center lg:px-0 px-4" : "px-4",
+              "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors",
+              isCollapsed && "lg:justify-center lg:px-0",
             )}
           >
             <LogOut className="w-5 h-5 shrink-0" />

@@ -4,6 +4,9 @@ import { authOptions } from "@/src/lib/auth";
 import { getUserOrdersSafe } from "@/src/lib/orders";
 import HomeUser from "@/src/main/home-user";
 import HomeAdmin from "@/src/main/home-admin";
+import AdminQueue from "@/src/main/admin-queue";
+import AdminMenu from "@/src/main/admin-menu";
+import AdminLaporan from "@/src/main/admin-laporan";
 import Login from "@/src/main/login";
 import Register from "@/src/main/register";
 import Order from "@/src/main/order";
@@ -51,6 +54,21 @@ export default async function Page({ searchParams }: PageProps) {
     if (session.user.role === "ADMIN") redirect("/home-admin");
     const orders = await getUserOrdersSafe(session.user.id);
     return <History user={session.user} orders={orders ?? []} dbUnavailable={orders === null} />;
+  }
+
+  if (view === "admin-queue") {
+    if (session.user.role === "USER") redirect("/home-user");
+    return <AdminQueue />;
+  }
+
+  if (view === "admin-menu") {
+    if (session.user.role === "USER") redirect("/home-user");
+    return <AdminMenu />;
+  }
+
+  if (view === "admin-laporan") {
+    if (session.user.role === "USER") redirect("/home-user");
+    return <AdminLaporan />;
   }
 
   redirect("/");

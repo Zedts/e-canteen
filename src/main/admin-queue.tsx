@@ -4,15 +4,9 @@ import { useState } from "react";
 import { ClipboardList } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { TIME_SLOTS } from "@/src/lib/menu-data";
+import { MOCK_QUEUE_ORDERS } from "@/src/lib/mock-dashboard";
+import { AdminShell } from "@/src/components/admin/admin-shell";
 import type { QueueOrder, QueueOrderStatus } from "@/src/types/admin";
-
-// ─── Props ────────────────────────────────────────────────────────────────────
-
-interface QueuePageProps {
-  orders: QueueOrder[];
-  onMarkReady: (id: string) => void;
-  onComplete: (id: string) => void;
-}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -106,72 +100,86 @@ function EmptyState() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function QueuePage({ orders, onMarkReady, onComplete }: QueuePageProps) {
+export default function AdminQueue() {
+  const [orders, setOrders] = useState<QueueOrder[]>(MOCK_QUEUE_ORDERS);
   const [activeSlot, setActiveSlot] = useState<"break1" | "break2">("break1");
 
+  const pendingOrderCount = orders.filter((o) => o.status === "PREPARING").length;
   const filteredOrders = orders.filter((o) => o.slot === activeSlot);
   const countBySlot = (slot: "break1" | "break2") =>
     orders.filter((o) => o.slot === slot).length;
 
+  function markReady(id: string) {
+    setOrders((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, status: "READY" as const } : o)),
+    );
+  }
+
+  function completeOrder(id: string) {
+    setOrders((prev) => prev.filter((o) => o.id !== id));
+  }
+
   return (
-    <div className="max-w-7xl mx-auto animate-fade-in">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl font-bold text-gray-900">
-          Antrean Langsung
-        </h1>
-        <p className="text-gray-500 mt-1 text-sm">
-          Kelola pesanan masuk untuk hari ini.
-        </p>
-      </div>
+    <AdminShell activePage="queue" pendingOrderCount={pendingOrderCount}>
+      <div className="max-w-7xl mx-auto animate-fade-in">
+        <div className="mb-8">
+          <h1 className="font-serif text-3xl font-bold text-gray-900">
+            Antrean Langsung
+          </h1>
+          <p className="text-gray-500 mt-1 text-sm">
+            Kelola pesanan masuk untuk hari ini.
+          </p>
+        </div>
 
-      {/* Slot tabs */}
-      <div className="flex gap-3 mb-6 overflow-x-auto pb-1">
-        {TIME_SLOTS.map((slot) => {
-          const isActive = activeSlot === slot.id;
-          const count = countBySlot(slot.id);
+        {/* Slot tabs */}
+        <div className="flex gap-3 mb-6 overflow-x-auto pb-1">
+          {TIME_SLOTS.map((slot) => {
+            const isActive = activeSlot === slot.id;
+            const count = countBySlot(slot.id);
 
-          return (
-            <button
-              key={slot.id}
-              onClick={() => setActiveSlot(slot.id)}
-              className={cn(
-                "flex-shrink-0 px-5 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 border transition-all",
-                isActive
-                  ? "border-gray-900 bg-gray-900 text-white shadow-sm"
-                  : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
-              )}
-            >
-              {slot.label} ({slot.time.split(" - ")[0]})
-              <span
+            return (
+              <button
+                key={slot.id}
+                onClick={() => setActiveSlot(slot.id)}
                 className={cn(
-                  "text-[10px] px-2 py-0.5 rounded-full font-bold",
+                  "flex-shrink-0 px-5 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 border transition-all",
                   isActive
-                    ? "bg-white/20 text-white"
-                    : "bg-gray-200 text-gray-600",
+                    ? "border-gray-900 bg-gray-900 text-white shadow-sm"
+                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50",
                 )}
               >
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                {slot.label} ({slot.time.split(" - ")[0]})
+                <span
+                  className={cn(
+                    "text-[10px] px-2 py-0.5 rounded-full font-bold",
+                    isActive
+                      ? "bg-white/20 text-white"
+                      : "bg-gray-200 text-gray-600",
+                  )}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Orders grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredOrders.length === 0 ? (
-          <EmptyState />
-        ) : (
-          filteredOrders.map((order) => (
-            <OrderCard
-              key={order.id}
-              order={order}
-              onMarkReady={onMarkReady}
-              onComplete={onComplete}
-            />
-          ))
-        )}
+        {/* Orders grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredOrders.length === 0 ? (
+            <EmptyState />
+          ) : (
+            filteredOrders.map((order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                onMarkReady={markReady}
+                onComplete={completeOrder}
+              />
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </AdminShell>
   );
 }

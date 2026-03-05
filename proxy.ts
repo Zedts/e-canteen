@@ -31,4 +31,19 @@ export function proxy(request: NextRequest) {
         url.searchParams.set('view', 'history');
         return NextResponse.rewrite(url);
     }
+
+    if (pathname === '/admin-queue') {
+        url.searchParams.set('view', 'admin-queue');
+        return NextResponse.rewrite(url);
+    }
+
+    if (pathname === '/admin-menu') {
+        url.searchParams.set('view', 'admin-menu');
+        return NextResponse.rewrite(url);
+    }
+
+    if (pathname === '/admin-laporan') {
+        url.searchParams.set('view', 'admin-laporan');
+        return NextResponse.rewrite(url);
+    }
 }
