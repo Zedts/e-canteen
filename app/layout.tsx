@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { AuthSessionProvider } from "@/src/context/session-provider";
+import { CartProvider } from "@/src/context/cart-context";
+import { GlobalCartFab } from "@/src/components/order/global-cart-fab";
 import "./globals.css";
 
 const inter = Inter({
@@ -28,7 +30,12 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${inter.variable} ${playfair.variable}`}>
       <body>
-        <AuthSessionProvider>{children}</AuthSessionProvider>
+        <AuthSessionProvider>
+          <CartProvider>
+            {children}
+            <GlobalCartFab />
+          </CartProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

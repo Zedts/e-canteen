@@ -5,6 +5,7 @@ import HomeUser from "@/src/main/home-user";
 import HomeAdmin from "@/src/main/home-admin";
 import Login from "@/src/main/login";
 import Register from "@/src/main/register";
+import Order from "@/src/main/order";
 
 type SearchParams = { view?: string };
 type PageProps = { searchParams?: Promise<SearchParams> };
@@ -37,6 +38,11 @@ export default async function Page({ searchParams }: PageProps) {
   if (view === "home-admin") {
     if (session.user.role === "USER") redirect("/home-user");
     return <HomeAdmin />;
+  }
+
+  if (view === "order") {
+    if (session.user.role === "ADMIN") redirect("/home-admin");
+    return <Order user={session.user} />;
   }
 
   redirect("/");

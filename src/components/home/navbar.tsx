@@ -14,8 +14,8 @@ interface NavbarProps {
 }
 
 const NAV_LINKS = [
-  { key: "home",     label: "Beranda",     href: "/home-user" },
-  { key: "preorder", label: "Pesan Makanan", href: "/home-user" },
+  { key: "home",     label: "Beranda",      href: "/home-user" },
+  { key: "preorder", label: "Pesan Makanan", href: "/order"     },
   { key: "history",  label: "Pesanan Saya",  href: "/home-user" },
 ] as const;
 

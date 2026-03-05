@@ -21,4 +21,9 @@ export function proxy(request: NextRequest) {
         url.searchParams.set('view', 'register');
         return NextResponse.rewrite(url);
     }
+
+    if (pathname === '/order') {
+        url.searchParams.set('view', 'order');
+        return NextResponse.rewrite(url);
+    }
 }

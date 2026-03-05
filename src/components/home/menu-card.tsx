@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import type { MenuItem } from "@/src/lib/menu-data";
@@ -10,12 +11,13 @@ interface MenuCardProps {
 
 export function MenuCard({ item }: MenuCardProps) {
   return (
-    <div
+    <Link
+      href="/order"
       className={[
-        "bg-white rounded-2xl p-3 border border-gray-100 shadow-soft transition-transform",
+        "bg-white rounded-2xl p-3 border border-gray-100 shadow-soft block transition-transform",
         item.available
           ? "cursor-pointer hover:-translate-y-1"
-          : "opacity-60 cursor-not-allowed",
+          : "opacity-60 pointer-events-none",
       ].join(" ")}
     >
       {/* Image */}
@@ -49,6 +51,6 @@ export function MenuCard({ item }: MenuCardProps) {
       <p className="text-brand-600 font-bold text-sm mt-1">
         {formatCurrency(item.price)}
       </p>
-    </div>
+    </Link>
   );
 }

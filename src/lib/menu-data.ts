@@ -118,3 +118,27 @@ export const MENU_ITEMS: MenuItem[] = [
     available: true,
   },
 ];
+
+// ─── Time Slots ───────────────────────────────────────────────────────────────
+
+export interface TimeSlot {
+  id: "break1" | "break2";
+  label: string;
+  time: string;
+  pickupDisplay: string;
+}
+
+export const TIME_SLOTS: TimeSlot[] = [
+  {
+    id: "break1",
+    label: "Istirahat 1",
+    time: "10:00 - 10:20",
+    pickupDisplay: "Istirahat 1 • 10:00",
+  },
+  {
+    id: "break2",
+    label: "Istirahat 2",
+    time: "12:30 - 13:10",
+    pickupDisplay: "Istirahat 2 • 12:30",
+  },
+];
