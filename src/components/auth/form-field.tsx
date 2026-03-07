@@ -9,6 +9,7 @@ type FormFieldProps = {
   onChange: (value: string) => void;
   placeholder: string;
   error?: string;
+  inputClassName?: string;
   children?: React.ReactNode;
 };
 
@@ -20,6 +21,7 @@ export function FormField({
   onChange,
   placeholder,
   error,
+  inputClassName = "rounded-xl py-3 text-sm focus-visible:ring-brand-500",
   children,
 }: FormFieldProps) {
   return (
@@ -33,7 +35,7 @@ export function FormField({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           required
-          className="rounded-xl py-3 text-sm focus-visible:ring-brand-500"
+          className={inputClassName}
         />
         {children}
       </div>

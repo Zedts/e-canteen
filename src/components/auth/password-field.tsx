@@ -13,6 +13,7 @@ type PasswordFieldProps = {
   onChange: (value: string) => void;
   placeholder?: string;
   error?: string;
+  inputClassName?: string;
 };
 
 export function PasswordField({
@@ -22,6 +23,7 @@ export function PasswordField({
   onChange,
   placeholder = "••••••••",
   error,
+  inputClassName,
 }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
 
@@ -34,6 +36,7 @@ export function PasswordField({
       onChange={onChange}
       placeholder={placeholder}
       error={error}
+      inputClassName={inputClassName}
     >
       <Button
         type="button"

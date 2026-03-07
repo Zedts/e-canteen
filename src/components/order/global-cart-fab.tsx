@@ -18,9 +18,9 @@ export function GlobalCartFab() {
   const { cartEntries, cartTotal, totalItems, add, remove, removeAll } = useCartContext();
 
   const isOnOrderPage = pathname === "/order";
-  const isAdminPage = pathname === "/home-penjual" || pathname.startsWith("/penjual-");
+  const isStaffPage = pathname === "/home-penjual" || pathname.startsWith("/penjual-") || pathname.startsWith("/admin");
   const isLoginPage = pathname === "/";
-  const shouldRender = totalItems > 0 && !isOnOrderPage && !isAdminPage && !isLoginPage;
+  const shouldRender = totalItems > 0 && !isOnOrderPage && !isStaffPage && !isLoginPage;
 
   if (!shouldRender) return null;
 
