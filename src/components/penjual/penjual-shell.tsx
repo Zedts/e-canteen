@@ -3,47 +3,47 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { AdminSidebar } from "./admin-sidebar";
-import { AdminHeader } from "./admin-header";
+import { PenjualSidebar } from "./penjual-sidebar";
+import { PenjualHeader } from "./penjual-header";
 import { ConfirmDialog } from "@/src/components/ui/confirm-dialog";
-import type { AdminPage } from "@/src/types/admin";
+import type { PenjualPage } from "@/src/types/penjual";
 
 // ─── Route map ────────────────────────────────────────────────────────────────
 
-const PAGE_ROUTES: Record<AdminPage, string> = {
-  dashboard: "/home-admin",
-  queue: "/admin-queue",
-  menu: "/admin-menu",
-  laporan: "/admin-laporan",
+const PAGE_ROUTES: Record<PenjualPage, string> = {
+  dashboard: "/home-penjual",
+  queue: "/penjual-queue",
+  menu: "/penjual-menu",
+  laporan: "/penjual-laporan",
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
-interface AdminShellProps {
-  activePage: AdminPage;
+interface PenjualShellProps {
+  activePage: PenjualPage;
   pendingOrderCount?: number;
   children: React.ReactNode;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AdminShell({
+export function PenjualShell({
   activePage,
   pendingOrderCount = 0,
   children,
-}: AdminShellProps) {
+}: PenjualShellProps) {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
-  function navigateTo(page: AdminPage) {
+  function navigateTo(page: PenjualPage) {
     router.push(PAGE_ROUTES[page]);
   }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans flex">
-      <AdminSidebar
+      <PenjualSidebar
         activePage={activePage}
         pendingOrderCount={pendingOrderCount}
         isMobileOpen={isMobileMenuOpen}
@@ -55,7 +55,7 @@ export function AdminShell({
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <AdminHeader onMenuOpen={() => setIsMobileMenuOpen(true)} />
+        <PenjualHeader onMenuOpen={() => setIsMobileMenuOpen(true)} />
         <main className="flex-1 p-4 sm:p-8 overflow-y-auto">{children}</main>
       </div>
 

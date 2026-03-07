@@ -9,7 +9,7 @@ datasource db {
 
 enum Role {
   USER
-  ADMIN
+  PENJUAL
 }
 
 enum OrderStatus {

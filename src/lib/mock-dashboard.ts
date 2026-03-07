@@ -1,5 +1,5 @@
 import { MENU_ITEMS, type MenuItem } from "./menu-data";
-import type { QueueOrder, DailyReport, ReportOrder } from "@/src/types/admin";
+import type { QueueOrder, DailyReport, ReportOrder } from "@/src/types/penjual";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

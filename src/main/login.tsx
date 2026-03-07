@@ -41,7 +41,7 @@ export default function Login() {
 
     // Fetch the freshly created session to read role for redirect
     const session = await getSession();
-    router.push(session?.user.role === "ADMIN" ? "/home-admin" : "/home-user");
+    router.push(session?.user.role === "PENJUAL" ? "/home-penjual" : "/home-user");
   }
 
   return (

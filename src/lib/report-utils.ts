@@ -1,4 +1,4 @@
-import type { DailyReport, ReportOrder } from "@/src/types/admin";
+import type { DailyReport, ReportOrder } from "@/src/types/penjual";
 import { formatCurrency } from "./utils";
 
 // ─── CSV Download ─────────────────────────────────────────────────────────────

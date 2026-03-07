@@ -4,11 +4,11 @@ import { Menu } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { getInitials } from "@/src/lib/utils";
 
-interface AdminHeaderProps {
+interface PenjualHeaderProps {
   onMenuOpen: () => void;
 }
 
-export function AdminHeader({ onMenuOpen }: AdminHeaderProps) {
+export function PenjualHeader({ onMenuOpen }: PenjualHeaderProps) {
   const { data: session } = useSession();
   const initials = getInitials(session?.user?.name ?? "A");
 

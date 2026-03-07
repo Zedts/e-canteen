@@ -5,8 +5,8 @@ import { ClipboardList } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { TIME_SLOTS } from "@/src/lib/menu-data";
 import { MOCK_QUEUE_ORDERS } from "@/src/lib/mock-dashboard";
-import { AdminShell } from "@/src/components/admin/admin-shell";
-import type { QueueOrder, QueueOrderStatus } from "@/src/types/admin";
+import { PenjualShell } from "@/src/components/penjual/penjual-shell";
+import type { QueueOrder, QueueOrderStatus } from "@/src/types/penjual";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -100,7 +100,7 @@ function EmptyState() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function AdminQueue() {
+export default function PenjualQueue() {
   const [orders, setOrders] = useState<QueueOrder[]>(MOCK_QUEUE_ORDERS);
   const [activeSlot, setActiveSlot] = useState<"break1" | "break2">("break1");
 
@@ -120,7 +120,7 @@ export default function AdminQueue() {
   }
 
   return (
-    <AdminShell activePage="queue" pendingOrderCount={pendingOrderCount}>
+    <PenjualShell activePage="queue" pendingOrderCount={pendingOrderCount}>
       <div className="max-w-7xl mx-auto animate-fade-in">
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-gray-900">
@@ -180,6 +180,6 @@ export default function AdminQueue() {
           )}
         </div>
       </div>
-    </AdminShell>
+    </PenjualShell>
   );
 }

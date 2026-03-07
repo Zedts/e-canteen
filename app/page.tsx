@@ -3,10 +3,10 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/src/lib/auth";
 import { getUserOrdersSafe } from "@/src/lib/orders";
 import HomeUser from "@/src/main/home-user";
-import HomeAdmin from "@/src/main/home-admin";
-import AdminQueue from "@/src/main/admin-queue";
-import AdminMenu from "@/src/main/admin-menu";
-import AdminLaporan from "@/src/main/admin-laporan";
+import HomePenjual from "@/src/main/home-penjual";
+import PenjualQueue from "@/src/main/penjual-queue";
+import PenjualMenu from "@/src/main/penjual-menu";
+import PenjualLaporan from "@/src/main/penjual-laporan";
 import Login from "@/src/main/login";
 import Register from "@/src/main/register";
 import Order from "@/src/main/order";
@@ -25,7 +25,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   // Root path — redirect authenticated users to their home
   if (!view) {
-    if (session?.user.role === "ADMIN") redirect("/home-admin");
+    if (session?.user.role === "PENJUAL") redirect("/home-penjual");
     if (session) redirect("/home-user");
     return <Login />;
   }
@@ -36,39 +36,39 @@ export default async function Page({ searchParams }: PageProps) {
   if (!session) redirect("/");
 
   if (view === "home-user") {
-    if (session.user.role === "ADMIN") redirect("/home-admin");
+    if (session.user.role === "PENJUAL") redirect("/home-penjual");
     return <HomeUser user={session.user} />;
   }
 
-  if (view === "home-admin") {
+  if (view === "home-penjual") {
     if (session.user.role === "USER") redirect("/home-user");
-    return <HomeAdmin />;
+    return <HomePenjual />;
   }
 
   if (view === "order") {
-    if (session.user.role === "ADMIN") redirect("/home-admin");
+    if (session.user.role === "PENJUAL") redirect("/home-penjual");
     return <Order user={session.user} />;
   }
 
   if (view === "history") {
-    if (session.user.role === "ADMIN") redirect("/home-admin");
+    if (session.user.role === "PENJUAL") redirect("/home-penjual");
     const orders = await getUserOrdersSafe(session.user.id);
     return <History user={session.user} orders={orders ?? []} dbUnavailable={orders === null} />;
   }
 
-  if (view === "admin-queue") {
+  if (view === "penjual-queue") {
     if (session.user.role === "USER") redirect("/home-user");
-    return <AdminQueue />;
+    return <PenjualQueue />;
   }
 
-  if (view === "admin-menu") {
+  if (view === "penjual-menu") {
     if (session.user.role === "USER") redirect("/home-user");
-    return <AdminMenu />;
+    return <PenjualMenu />;
   }
 
-  if (view === "admin-laporan") {
+  if (view === "penjual-laporan") {
     if (session.user.role === "USER") redirect("/home-user");
-    return <AdminLaporan />;
+    return <PenjualLaporan />;
   }
 
   redirect("/");

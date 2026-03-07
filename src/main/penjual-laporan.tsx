@@ -5,8 +5,8 @@ import { FileDown, TrendingUp, ShoppingBag, Banknote } from "lucide-react";
 import { cn, formatCurrency } from "@/src/lib/utils";
 import { MOCK_DAILY_REPORTS, MOCK_REPORT_ORDERS, MOCK_PENDING_COUNT } from "@/src/lib/mock-dashboard";
 import { exportDailyReports, exportOrderLog } from "@/src/lib/report-utils";
-import { AdminShell } from "@/src/components/admin/admin-shell";
-import type { DailyReport, ReportOrder } from "@/src/types/admin";
+import { PenjualShell } from "@/src/components/penjual/penjual-shell";
+import type { DailyReport, ReportOrder } from "@/src/types/penjual";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -83,7 +83,7 @@ function SummaryCard({ label, value, icon, iconBg }: SummaryCardProps) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function AdminLaporan() {
+export default function PenjualLaporan() {
   const [activePeriod, setActivePeriod] = useState<PeriodKey>("week");
 
   const period = PERIODS.find((p) => p.key === activePeriod)!;
@@ -100,7 +100,7 @@ export default function AdminLaporan() {
   }
 
   return (
-    <AdminShell activePage="laporan" pendingOrderCount={MOCK_PENDING_COUNT}>
+    <PenjualShell activePage="laporan" pendingOrderCount={MOCK_PENDING_COUNT}>
       <div className="max-w-7xl mx-auto animate-fade-in">
         {/* Page header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -270,7 +270,7 @@ export default function AdminLaporan() {
           )}
         </section>
       </div>
-    </AdminShell>
+    </PenjualShell>
   );
 }
 

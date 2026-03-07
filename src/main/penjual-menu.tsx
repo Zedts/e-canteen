@@ -10,8 +10,8 @@ import {
   type MenuItem,
   type MenuCategory,
 } from "@/src/lib/menu-data";
-import { AdminShell } from "@/src/components/admin/admin-shell";
-import { MenuItemModal, type MenuItemFormData } from "@/src/components/admin/menu-item-modal";
+import { PenjualShell } from "@/src/components/penjual/penjual-shell";
+import { MenuItemModal, type MenuItemFormData } from "@/src/components/penjual/menu-item-modal";
 import { MOCK_PENDING_COUNT } from "@/src/lib/mock-dashboard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -99,7 +99,7 @@ function MenuItemCard({ item, onToggle, onEdit }: MenuItemCardProps) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function AdminMenu() {
+export default function PenjualMenu() {
   const [items, setItems] = useState<MenuItem[]>(MENU_ITEMS);
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>(ALL_CATEGORY);
   const [modalMode, setModalMode] = useState<ModalMode>(null);
@@ -155,7 +155,7 @@ export default function AdminMenu() {
   }
 
   return (
-    <AdminShell activePage="menu" pendingOrderCount={MOCK_PENDING_COUNT}>
+    <PenjualShell activePage="menu" pendingOrderCount={MOCK_PENDING_COUNT}>
       <div className="max-w-7xl mx-auto animate-fade-in">
         {/* Page header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -218,6 +218,6 @@ export default function AdminMenu() {
           onClose={closeModal}
         />
       )}
-    </AdminShell>
+    </PenjualShell>
   );
 }

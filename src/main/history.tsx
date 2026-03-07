@@ -15,7 +15,7 @@ interface HistoryProps {
     name?: string | null;
     email?: string | null;
     balance: number;
-    role: "USER" | "ADMIN";
+    role: "USER" | "PENJUAL";
   };
   orders: OrderWithItems[];
   dbUnavailable?: boolean;

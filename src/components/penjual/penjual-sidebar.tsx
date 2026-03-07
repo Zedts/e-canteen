@@ -13,23 +13,23 @@ import {
 import { useSession } from "next-auth/react";
 import type { LucideIcon } from "lucide-react";
 import { cn, getInitials } from "@/src/lib/utils";
-import type { AdminPage } from "@/src/types/admin";
+import type { PenjualPage } from "@/src/types/penjual";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface NavItem {
-  id: AdminPage;
+  id: PenjualPage;
   label: string;
   icon: LucideIcon;
   badge?: number;
 }
 
-interface AdminSidebarProps {
-  activePage: AdminPage;
+interface PenjualSidebarProps {
+  activePage: PenjualPage;
   pendingOrderCount: number;
   isMobileOpen: boolean;
   isCollapsed: boolean;
-  onNavigate: (page: AdminPage) => void;
+  onNavigate: (page: PenjualPage) => void;
   onLogout: () => void;
   onMobileClose: () => void;
   onToggleCollapse: () => void;
@@ -37,7 +37,7 @@ interface AdminSidebarProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AdminSidebar({
+export function PenjualSidebar({
   activePage,
   pendingOrderCount,
   isMobileOpen,
@@ -46,9 +46,9 @@ export function AdminSidebar({
   onLogout,
   onMobileClose,
   onToggleCollapse,
-}: AdminSidebarProps) {
+}: PenjualSidebarProps) {
   const { data: session } = useSession();
-  const adminName = session?.user?.name ?? "Administrator";
+  const penjualName = session?.user?.name ?? "Penjual";
 
   const navItems: NavItem[] = [
     { id: "dashboard", label: "Dashboard",        icon: LayoutDashboard },
@@ -57,7 +57,7 @@ export function AdminSidebar({
     { id: "laporan",   label: "Laporan",          icon: FileBarChart2 },
   ];
 
-  function handleNavigate(page: AdminPage) {
+  function handleNavigate(page: PenjualPage) {
     onNavigate(page);
     onMobileClose();
   }
@@ -94,7 +94,7 @@ export function AdminSidebar({
               E-Kantin<span className="text-brand-500">.</span>
             </h1>
             <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mt-1">
-              Portal Admin
+              Portal Penjual
             </p>
           </div>
 
@@ -187,13 +187,13 @@ export function AdminSidebar({
             )}
           >
             <div className="w-8 h-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
-              {getInitials(adminName)}
+              {getInitials(penjualName)}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-gray-900 truncate">
-                {adminName}
+                {penjualName}
               </p>
-              <p className="text-[10px] text-gray-500">Administrator</p>
+              <p className="text-[10px] text-gray-500">Penjual</p>
             </div>
           </div>
 

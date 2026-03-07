@@ -1,4 +1,4 @@
-export type AdminPage = "dashboard" | "queue" | "menu" | "laporan";
+export type PenjualPage = "dashboard" | "queue" | "menu" | "laporan";
 
 export type QueueOrderStatus = "PREPARING" | "READY";
 

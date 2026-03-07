@@ -14,7 +14,7 @@ interface HomeUserProps {
     name?: string | null;
     email?: string | null;
     balance: number;
-    role: "USER" | "ADMIN";
+    role: "USER" | "PENJUAL";
   };
 }
 

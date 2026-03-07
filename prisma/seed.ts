@@ -29,17 +29,17 @@ async function seed() {
   await prisma.user.deleteMany();
 
   const [adminHash, userHash] = await Promise.all([
-    bcrypt.hash("admin123", 12),
+    bcrypt.hash("penjual123", 12),
     bcrypt.hash("user123", 12),
   ]);
 
   await prisma.user.createMany({
     data: [
       {
-        name:     "Admin Kantin",
-        email:    "admin@ecanteen.id",
+        name:     "Penjual Kantin",
+        email:    "penjual@ecanteen.id",
         password: adminHash,
-        role:     "ADMIN",
+        role:     "PENJUAL",
         balance:  0,
       },
       {
@@ -55,8 +55,8 @@ async function seed() {
   await prisma.$disconnect();
 
   console.log("✅ Seeded 2 accounts:");
-  console.log("   admin@ecanteen.id  / admin123  (ADMIN)");
-  console.log("   sarah@siswa.id     / user123   (USER)");
+  console.log("   penjual@ecanteen.id / penjual123 (PENJUAL)");
+  console.log("   sarah@siswa.id      / user123   (USER)");
 }
 
 seed().catch((err) => {

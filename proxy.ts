@@ -12,8 +12,8 @@ export function proxy(request: NextRequest) {
         return NextResponse.rewrite(url);
     }
 
-    if (pathname === '/home-admin') {
-        url.searchParams.set('view', 'home-admin');
+    if (pathname === '/home-penjual') {
+        url.searchParams.set('view', 'home-penjual');
         return NextResponse.rewrite(url);
     }
 
@@ -32,18 +32,18 @@ export function proxy(request: NextRequest) {
         return NextResponse.rewrite(url);
     }
 
-    if (pathname === '/admin-queue') {
-        url.searchParams.set('view', 'admin-queue');
+    if (pathname === '/penjual-queue') {
+        url.searchParams.set('view', 'penjual-queue');
         return NextResponse.rewrite(url);
     }
 
-    if (pathname === '/admin-menu') {
-        url.searchParams.set('view', 'admin-menu');
+    if (pathname === '/penjual-menu') {
+        url.searchParams.set('view', 'penjual-menu');
         return NextResponse.rewrite(url);
     }
 
-    if (pathname === '/admin-laporan') {
-        url.searchParams.set('view', 'admin-laporan');
+    if (pathname === '/penjual-laporan') {
+        url.searchParams.set('view', 'penjual-laporan');
         return NextResponse.rewrite(url);
     }
 }
