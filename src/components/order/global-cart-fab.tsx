@@ -41,7 +41,7 @@ export function GlobalCartFab() {
       {/* FAB Button — visible on all screen sizes, always pinned bottom-right */}
       <button
         onClick={handleFabClick}
-        className="fixed bottom-24 right-5 lg:bottom-6 w-14 h-14 bg-brand-500 text-white rounded-full shadow-float flex items-center justify-center z-[60] hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/30 transition-all"
+        className="fixed bottom-24 right-5 lg:bottom-6 w-14 h-14 bg-brand-500 text-white rounded-full shadow-float flex items-center justify-center z-60 hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/30 transition-all"
         aria-label="Lihat keranjang"
       >
         <ShoppingBag className="w-6 h-6" />
@@ -53,7 +53,7 @@ export function GlobalCartFab() {
       {/* Overlay */}
       {open && (
         <div
-          className="fixed inset-0 z-[70] bg-gray-900/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-70 bg-gray-900/60 backdrop-blur-sm lg:hidden"
           onClick={() => setOpen(false)}
         />
       )}
@@ -61,7 +61,7 @@ export function GlobalCartFab() {
       {/* Bottom Sheet */}
       <div
         className={[
-          "fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-float z-[80] flex flex-col max-h-[80vh] lg:hidden transition-transform duration-300",
+          "fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-float z-80 flex flex-col max-h-[80vh] lg:hidden transition-transform duration-300",
           open ? "translate-y-0" : "translate-y-full",
         ].join(" ")}
       >

@@ -20,7 +20,7 @@ export function CartCheckoutBar({
   if (totalItems === 0) return null;
 
   return (
-    <div className="lg:hidden fixed bottom-20 left-0 right-0 z-[55] px-4">
+    <div className="lg:hidden fixed bottom-20 left-0 right-0 z-55 px-4">
       <button
         onClick={onCheckout}
         className="w-full bg-brand-500 hover:bg-brand-600 text-white rounded-2xl px-5 py-4 flex items-center justify-between shadow-float transition-all hover:-translate-y-0.5"

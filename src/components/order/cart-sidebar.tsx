@@ -38,7 +38,7 @@ export function CartSidebar({
           Keranjang Anda
         </h2>
 
-        <div className="min-h-[150px] max-h-[40vh] overflow-y-auto space-y-4 mb-6 pr-1">
+        <div className="min-h-37.5 max-h-[40vh] overflow-y-auto space-y-4 mb-6 pr-1">
           {isEmpty ? (
             <EmptyCart />
           ) : (

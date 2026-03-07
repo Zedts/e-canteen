@@ -67,7 +67,7 @@ export function AdminSidebar({
       {/* Mobile backdrop */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-[55] lg:hidden"
+          className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-55 lg:hidden"
           onClick={onMobileClose}
         />
       )}
@@ -75,10 +75,10 @@ export function AdminSidebar({
       <aside
         className={cn(
           "bg-white border-r border-gray-200 flex flex-col w-64",
-          "fixed inset-y-0 left-0 z-[60] transition-[transform,width] duration-300",
+          "fixed inset-y-0 left-0 z-60 transition-[transform,width] duration-300",
           "lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 shrink-0",
           isMobileOpen ? "translate-x-0" : "-translate-x-full",
-          isCollapsed ? "lg:w-[72px]" : "lg:w-64",
+          isCollapsed ? "lg:w-18" : "lg:w-64",
         )}
       >
         {/* Logo / Header */}

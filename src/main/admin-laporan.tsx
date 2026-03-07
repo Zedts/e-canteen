@@ -225,7 +225,7 @@ export default function AdminLaporan() {
             <EmptyTable message="Tidak ada pesanan untuk periode ini." />
           ) : (
             <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
-              <table className="w-full text-sm min-w-[640px]">
+              <table className="w-full text-sm min-w-160">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
                     <th className="text-left px-6 py-3.5 font-semibold text-gray-600">ID</th>
@@ -250,7 +250,7 @@ export default function AdminLaporan() {
                         <p className="font-semibold text-gray-900">{order.customerName}</p>
                         <p className="text-xs text-gray-400 mt-0.5">{order.className}</p>
                       </td>
-                      <td className="px-6 py-4 text-gray-600 max-w-[200px]">
+                      <td className="px-6 py-4 text-gray-600 max-w-50">
                         <p className="truncate">{order.items.join(", ")}</p>
                       </td>
                       <td className="px-6 py-4 font-semibold text-gray-900">

@@ -44,7 +44,7 @@ function MenuItemCard({ item, onToggle, onEdit }: MenuItemCardProps) {
     <div
       className={cn(
         "bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex flex-col transition-all",
-        item.available ? "hover:shadow-md" : "opacity-70 grayscale-[40%]",
+        item.available ? "hover:shadow-md" : "opacity-70 grayscale-40",
       )}
     >
       <div className="h-40 bg-gray-100 relative group overflow-hidden">
