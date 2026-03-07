@@ -91,7 +91,7 @@ export function Navbar({ user, activePage = "home" }: NavbarProps) {
               >
                 <Bell className={readyOrders.length > 0 ? "w-5 h-5 text-green-600" : "w-5 h-5"} />
                 {readyOrders.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-green-600 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center px-1">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 bg-green-600 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center px-1">
                     {readyOrders.length}
                   </span>
                 )}
