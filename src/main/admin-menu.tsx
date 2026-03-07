@@ -12,6 +12,7 @@ import {
 } from "@/src/lib/menu-data";
 import { AdminShell } from "@/src/components/admin/admin-shell";
 import { MenuItemModal, type MenuItemFormData } from "@/src/components/admin/menu-item-modal";
+import { MOCK_PENDING_COUNT } from "@/src/lib/mock-dashboard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -154,7 +155,7 @@ export default function AdminMenu() {
   }
 
   return (
-    <AdminShell activePage="menu">
+    <AdminShell activePage="menu" pendingOrderCount={MOCK_PENDING_COUNT}>
       <div className="max-w-7xl mx-auto animate-fade-in">
         {/* Page header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">

@@ -93,6 +93,10 @@ export const MOCK_QUEUE_ORDERS: QueueOrder[] = [
   },
 ];
 
+export const MOCK_PENDING_COUNT = MOCK_QUEUE_ORDERS.filter(
+  (o) => o.status === "PREPARING",
+).length;
+
 // ─── Mock Report Data ─────────────────────────────────────────────────────────
 
 export const MOCK_DAILY_REPORTS: DailyReport[] = [

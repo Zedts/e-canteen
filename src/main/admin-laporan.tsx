@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { FileDown, TrendingUp, ShoppingBag, Banknote } from "lucide-react";
 import { cn, formatCurrency } from "@/src/lib/utils";
-import { MOCK_DAILY_REPORTS, MOCK_REPORT_ORDERS } from "@/src/lib/mock-dashboard";
+import { MOCK_DAILY_REPORTS, MOCK_REPORT_ORDERS, MOCK_PENDING_COUNT } from "@/src/lib/mock-dashboard";
 import { exportDailyReports, exportOrderLog } from "@/src/lib/report-utils";
 import { AdminShell } from "@/src/components/admin/admin-shell";
 import type { DailyReport, ReportOrder } from "@/src/types/admin";
@@ -100,7 +100,7 @@ export default function AdminLaporan() {
   }
 
   return (
-    <AdminShell activePage="laporan">
+    <AdminShell activePage="laporan" pendingOrderCount={MOCK_PENDING_COUNT}>
       <div className="max-w-7xl mx-auto animate-fade-in">
         {/* Page header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -116,14 +116,14 @@ export default function AdminLaporan() {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 font-medium text-sm hover:bg-gray-50 transition-colors shadow-sm"
             >
               <FileDown className="w-4 h-4" />
-              Ringkasan
+              Export Ringkasan
             </button>
             <button
               onClick={handleExportOrders}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm shadow-sm transition-colors"
             >
               <FileDown className="w-4 h-4" />
-              Export Excel
+              Export Log Pesanan
             </button>
           </div>
         </div>
