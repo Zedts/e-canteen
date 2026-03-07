@@ -112,7 +112,7 @@ export function MenuItemModal({ mode, initialData, onSave, onClose }: MenuItemMo
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[500] flex items-center justify-center p-4"
+      className="fixed inset-0 z-500 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label={title}

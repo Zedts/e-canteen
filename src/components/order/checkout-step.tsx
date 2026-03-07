@@ -74,7 +74,7 @@ export function CheckoutStep({ user, slot, onBack }: CheckoutStepProps) {
 
           <Header onBack={onBack} />
 
-          <div className="mt-6 flex flex-col lg:grid lg:grid-cols-[1fr_380px] gap-6 items-start">
+          <div className="mt-6 flex flex-col lg:grid lg:grid-cols-[1fr_380px] gap-6 lg:items-start">
             {/* Left — order summary */}
             <OrderSummary
               entries={cartEntries}
