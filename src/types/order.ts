@@ -1,8 +1,8 @@
-import type { MenuItem } from "@/src/lib/menu-data";
+import type { Product } from "@/src/types/product";
 
-export type Cart = Record<string, number>; // itemId → quantity
+export type Cart = Record<string, number>; // productId → quantity
 
 export interface CartEntry {
-  item: MenuItem;
+  item: Product;
   quantity: number;
 }

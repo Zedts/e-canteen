@@ -8,9 +8,10 @@
     "start": "next start",
     "lint": "eslint",
 
+    "dbreset": "prisma db push --force-reset",
+    "dbgenerate": "prisma generate",
     "dbpush": "prisma db push",
-    "seed": "tsx prisma/seed.ts",
-    "generate": "prisma generate"
+    "dbseed": "tsx prisma/seed.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -2,7 +2,19 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/src/lib/auth";
 import { getUserOrdersSafe } from "@/src/lib/orders";
-import { getAdminStats, listAllUsers } from "@/src/lib/actions";
+import {
+  getAdminStats,
+  listAllUsers,
+  getPendingOrderCount,
+  getPenjualStats,
+  getHourlyOrderCounts,
+  getTopMenuItems,
+  getPenjualQueueOrders,
+  getDailyReports,
+  getReportOrders,
+  getActiveProducts,
+  getAllProducts,
+} from "@/src/lib/actions";
 import HomeUser from "@/src/main/home-user";
 import HomePenjual from "@/src/main/home-penjual";
 import PenjualQueue from "@/src/main/penjual-queue";
@@ -46,13 +58,15 @@ export default async function Page({ searchParams }: PageProps) {
   if (view === "home-user") {
     if (role === "PENJUAL") redirect("/home-penjual");
     if (role === "ADMIN")   redirect("/admin-dashboard");
-    return <HomeUser user={session.user} />;
+    const products = await getActiveProducts();
+    return <HomeUser user={session.user} products={products} />;
   }
 
   if (view === "order") {
     if (role === "PENJUAL") redirect("/home-penjual");
     if (role === "ADMIN")   redirect("/admin-dashboard");
-    return <Order user={session.user} />;
+    const products = await getActiveProducts();
+    return <Order user={session.user} products={products} />;
   }
 
   if (view === "history") {
@@ -67,25 +81,41 @@ export default async function Page({ searchParams }: PageProps) {
   if (view === "home-penjual") {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
-    return <HomePenjual />;
+    const [pendingCount, stats, chartData, topItems] = await Promise.all([
+      getPendingOrderCount(),
+      getPenjualStats(),
+      getHourlyOrderCounts(),
+      getTopMenuItems(),
+    ]);
+    return <HomePenjual pendingCount={pendingCount} stats={stats} chartData={chartData} topItems={topItems} />;
   }
 
   if (view === "penjual-queue") {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
-    return <PenjualQueue />;
+    const initialOrders = await getPenjualQueueOrders();
+    return <PenjualQueue initialOrders={initialOrders} />;
   }
 
   if (view === "penjual-menu") {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
-    return <PenjualMenu />;
+    const [pendingCount, products] = await Promise.all([
+      getPendingOrderCount(),
+      getAllProducts(),
+    ]);
+    return <PenjualMenu pendingCount={pendingCount} initialProducts={products} />;
   }
 
   if (view === "penjual-laporan") {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
-    return <PenjualLaporan />;
+    const [pendingCount, dailyReports, reportOrders] = await Promise.all([
+      getPendingOrderCount(),
+      getDailyReports(30),
+      getReportOrders(30),
+    ]);
+    return <PenjualLaporan dailyReports={dailyReports} reportOrders={reportOrders} pendingCount={pendingCount} />;
   }
 
   // ─── Admin pages ─────────────────────────────────────────────────────────────

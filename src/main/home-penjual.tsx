@@ -1,11 +1,18 @@
-import { DashboardPage } from "@/src/components/penjual/dashboard-page";
+﻿import { DashboardPage } from "@/src/components/penjual/dashboard-page";
 import { PenjualShell } from "@/src/components/penjual/penjual-shell";
-import { MOCK_PENDING_COUNT } from "@/src/lib/mock-dashboard";
+import type { StatData, TopMenuItem } from "@/src/types/penjual";
 
-export default function HomePenjual() {
+interface Props {
+  pendingCount: number;
+  stats: StatData[];
+  chartData: { labels: string[]; values: number[] };
+  topItems: TopMenuItem[];
+}
+
+export default function HomePenjual({ pendingCount, stats, chartData, topItems }: Props) {
   return (
-    <PenjualShell activePage="dashboard" pendingOrderCount={MOCK_PENDING_COUNT}>
-      <DashboardPage />
+    <PenjualShell activePage="dashboard" pendingOrderCount={pendingCount}>
+      <DashboardPage stats={stats} chartData={chartData} topItems={topItems} />
     </PenjualShell>
   );
 }

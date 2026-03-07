@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/src/lib/utils";
-import type { TopMenuItem } from "@/src/lib/mock-dashboard";
+import type { TopMenuItem } from "@/src/types/penjual";
 
 interface TopItemsListProps {
   items: TopMenuItem[];

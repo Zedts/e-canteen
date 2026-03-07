@@ -1,30 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { Bell, LogOut } from "lucide-react";
 import { getInitials, formatCurrency } from "@/src/lib/utils";
 import { ConfirmDialog } from "@/src/components/ui/confirm-dialog";
+import { NotificationModal } from "@/src/components/home/notification-modal";
+import { getReadyOrdersForUser } from "@/src/lib/actions";
+import type { ReadyOrder } from "@/src/lib/actions";
+
+const POLL_INTERVAL_MS = 20_000;
 
 interface NavbarProps {
   user: {
-    name?: string | null;
+    id:      string;
+    name?:   string | null;
     balance: number;
   };
   activePage?: "home" | "preorder" | "history";
 }
 
 const NAV_LINKS = [
-  { key: "home",     label: "Beranda",       href: "/home-user" },
-  { key: "preorder", label: "Pesan Makanan",  href: "/order"     },
-  { key: "history",  label: "Pesanan Saya",   href: "/history"   },
+  { key: "home",     label: "Beranda",      href: "/home-user" },
+  { key: "preorder", label: "Pesan Makanan", href: "/order"     },
+  { key: "history",  label: "Pesanan Saya",  href: "/history"   },
 ] as const;
 
 export function Navbar({ user, activePage = "home" }: NavbarProps) {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  const initials = getInitials(user.name ?? "?");
+  const [readyOrders,      setReadyOrders]      = useState<ReadyOrder[]>([]);
+  const [showNotifModal,   setShowNotifModal]   = useState(false);
+
+  const initials  = getInitials(user.name ?? "?");
   const firstName = user.name?.split(" ")[0] ?? "Pengguna";
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkNotifications() {
+      const orders = await getReadyOrdersForUser(user.id);
+      if (!cancelled) setReadyOrders(orders);
+    }
+
+    checkNotifications();
+    const timer = setInterval(checkNotifications, POLL_INTERVAL_MS);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, [user.id]);
 
   return (
     <>
@@ -62,9 +84,17 @@ export function Navbar({ user, activePage = "home" }: NavbarProps) {
 
             {/* Right side: bell + user info */}
             <div className="flex items-center gap-3">
-              <button className="relative p-2 text-gray-400 hover:text-gray-600 transition bg-gray-100 rounded-full hidden sm:flex">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />
+              <button
+                onClick={() => setShowNotifModal(true)}
+                title="Notifikasi pesanan"
+                className="relative p-2 text-gray-400 hover:text-gray-600 transition bg-gray-100 rounded-full flex"
+              >
+                <Bell className={readyOrders.length > 0 ? "w-5 h-5 text-green-600" : "w-5 h-5"} />
+                {readyOrders.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-green-600 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center px-1">
+                    {readyOrders.length}
+                  </span>
+                )}
               </button>
 
               <div className="flex items-center gap-3 pl-3 border-l border-gray-200">
@@ -101,6 +131,13 @@ export function Navbar({ user, activePage = "home" }: NavbarProps) {
         onConfirm={() => signOut({ callbackUrl: "/" })}
         onCancel={() => setShowLogoutDialog(false)}
       />
+
+      {showNotifModal && (
+        <NotificationModal
+          orders={readyOrders}
+          onClose={() => setShowNotifModal(false)}
+        />
+      )}
     </>
   );
 }

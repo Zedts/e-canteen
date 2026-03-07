@@ -2,17 +2,13 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { cn, formatCurrency } from "@/src/lib/utils";
-import {
-  MENU_ITEMS,
-  MENU_CATEGORIES,
-  type MenuItem,
-  type MenuCategory,
-} from "@/src/lib/menu-data";
+import { MENU_CATEGORIES, type MenuCategory } from "@/src/lib/menu-data";
+import type { Product } from "@/src/types/product";
 import { PenjualShell } from "@/src/components/penjual/penjual-shell";
 import { MenuItemModal, type MenuItemFormData } from "@/src/components/penjual/menu-item-modal";
-import { MOCK_PENDING_COUNT } from "@/src/lib/mock-dashboard";
+import { createProduct, updateProduct, deleteProduct } from "@/src/lib/actions";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -35,12 +31,13 @@ function AvailabilityBadge({ available }: { available: boolean }) {
 }
 
 interface MenuItemCardProps {
-  item: MenuItem;
+  item: Product;
   onToggle: (id: string) => void;
-  onEdit: (item: MenuItem) => void;
+  onEdit: (item: Product) => void;
+  onDelete: (id: string) => void;
 }
 
-function MenuItemCard({ item, onToggle, onEdit }: MenuItemCardProps) {
+function MenuItemCard({ item, onToggle, onEdit, onDelete }: MenuItemCardProps) {
   return (
     <div
       className={cn(
@@ -55,6 +52,7 @@ function MenuItemCard({ item, onToggle, onEdit }: MenuItemCardProps) {
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          unoptimized
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         <div className="absolute top-3 right-3 z-10">
@@ -91,6 +89,13 @@ function MenuItemCard({ item, onToggle, onEdit }: MenuItemCardProps) {
           >
             Edit
           </button>
+          <button
+            onClick={() => onDelete(item.id)}
+            className="py-2 px-3 rounded-lg text-xs border border-red-100 text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+            title="Hapus produk"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>
@@ -99,11 +104,17 @@ function MenuItemCard({ item, onToggle, onEdit }: MenuItemCardProps) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function PenjualMenu() {
-  const [items, setItems] = useState<MenuItem[]>(MENU_ITEMS);
+interface Props {
+  pendingCount: number;
+  initialProducts: Product[];
+}
+
+export default function PenjualMenu({ pendingCount, initialProducts }: Props) {
+  const [items, setItems] = useState<Product[]>(initialProducts);
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>(ALL_CATEGORY);
   const [modalMode, setModalMode] = useState<ModalMode>(null);
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [editingItem, setEditingItem] = useState<Product | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const categories: CategoryFilter[] = [ALL_CATEGORY, ...MENU_CATEGORIES];
   const visibleItems =
@@ -112,11 +123,13 @@ export default function PenjualMenu() {
   function openAddModal() {
     setEditingItem(null);
     setModalMode("add");
+    setActionError(null);
   }
 
-  function openEditModal(item: MenuItem) {
+  function openEditModal(item: Product) {
     setEditingItem(item);
     setModalMode("edit");
+    setActionError(null);
   }
 
   function closeModal() {
@@ -124,40 +137,67 @@ export default function PenjualMenu() {
     setEditingItem(null);
   }
 
-  function toggleAvailability(id: string) {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, available: !item.available } : item)),
-    );
+  async function toggleAvailability(id: string) {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+
+    const result = await updateProduct(id, { available: !item.available });
+    if (result.ok) {
+      setItems((prev) => prev.map((i) => (i.id === id ? { ...i, available: !i.available } : i)));
+    } else {
+      setActionError(result.error);
+    }
   }
 
-  function handleSave(data: MenuItemFormData) {
+  async function handleSave(data: MenuItemFormData) {
     if (modalMode === "add") {
-      const newItem: MenuItem = {
-        id: String(Date.now()),
+      const result = await createProduct({
         name: data.name,
         category: data.category,
         price: Number(data.price),
         imageUrl: data.imageUrl,
         available: data.available,
-        rating: 0,
-      };
-      setItems((prev) => [...prev, newItem]);
+      });
+      if (result.ok) {
+        setItems((prev) => [...prev, result.data!]);
+      } else {
+        setActionError(result.error);
+      }
     } else if (modalMode === "edit" && editingItem) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === editingItem.id
-            ? { ...item, name: data.name, category: data.category, price: Number(data.price), imageUrl: data.imageUrl, available: data.available }
-            : item,
-        ),
-      );
+      const result = await updateProduct(editingItem.id, {
+        name: data.name,
+        category: data.category,
+        price: Number(data.price),
+        imageUrl: data.imageUrl,
+        available: data.available,
+      });
+      if (result.ok) {
+        setItems((prev) =>
+          prev.map((item) =>
+            item.id === editingItem.id
+              ? { ...item, name: data.name, category: data.category, price: Number(data.price), imageUrl: data.imageUrl, available: data.available }
+              : item,
+          ),
+        );
+      } else {
+        setActionError(result.error);
+      }
     }
     closeModal();
   }
 
+  async function handleDelete(id: string) {
+    const result = await deleteProduct(id);
+    if (result.ok) {
+      setItems((prev) => prev.filter((item) => item.id !== id));
+    } else {
+      setActionError(result.error);
+    }
+  }
+
   return (
-    <PenjualShell activePage="menu" pendingOrderCount={MOCK_PENDING_COUNT}>
+    <PenjualShell activePage="menu" pendingOrderCount={pendingCount}>
       <div className="max-w-7xl mx-auto animate-fade-in">
-        {/* Page header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
             <h1 className="font-serif text-3xl font-bold text-gray-900">
@@ -176,7 +216,13 @@ export default function PenjualMenu() {
           </button>
         </div>
 
-        {/* Category filter tabs */}
+        {actionError && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700 flex justify-between items-center">
+            <span>{actionError}</span>
+            <button onClick={() => setActionError(null)} className="text-red-400 hover:text-red-600 text-lg leading-none ml-4">&times;</button>
+          </div>
+        )}
+
         <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
           {categories.map((cat) => {
             const isActive = activeCategory === cat;
@@ -197,17 +243,23 @@ export default function PenjualMenu() {
           })}
         </div>
 
-        {/* Menu grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {visibleItems.map((item) => (
-            <MenuItemCard
-              key={item.id}
-              item={item}
-              onToggle={toggleAvailability}
-              onEdit={openEditModal}
-            />
-          ))}
-        </div>
+        {visibleItems.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">
+            <p className="text-base font-medium">Tidak ada menu untuk kategori ini.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {visibleItems.map((item) => (
+              <MenuItemCard
+                key={item.id}
+                item={item}
+                onToggle={toggleAvailability}
+                onEdit={openEditModal}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {modalMode && (

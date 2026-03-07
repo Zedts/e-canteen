@@ -34,6 +34,20 @@ model User {
   orders    Order[]
 }
 
+model Product {
+  id        String      @id @default(cuid())
+  name      String
+  price     Int
+  category  String
+  imageUrl  String
+  available Boolean     @default(true)
+  rating    Float       @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  orderItems OrderItem[]
+}
+
 model Order {
   id        String      @id @default(cuid())
   userId    String
@@ -48,11 +62,12 @@ model Order {
 }
 
 model OrderItem {
-  id         String @id @default(cuid())
-  orderId    String
-  order      Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  menuItemId String
-  name       String
-  price      Int
-  quantity   Int
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  name      String
+  price     Int
+  quantity  Int
 }

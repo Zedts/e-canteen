@@ -26,7 +26,7 @@ export function exportDailyReports(reports: DailyReport[], periodLabel: string) 
 }
 
 export function exportOrderLog(orders: ReportOrder[], periodLabel: string) {
-  const header = ["ID Pesanan", "Nama Pelanggan", "Kelas", "Item", "Total", "Tanggal", "Sesi Makan"];
+  const header = ["ID Pesanan", "Nama Pelanggan", "Item", "Total", "Tanggal", "Sesi Makan"];
   const slotLabel: Record<ReportOrder["slot"], string> = {
     break1: "Istirahat 1",
     break2: "Istirahat 2",
@@ -34,7 +34,6 @@ export function exportOrderLog(orders: ReportOrder[], periodLabel: string) {
   const rows = orders.map((o) => [
     o.id,
     o.customerName,
-    o.className,
     o.items.join("; "),
     formatCurrency(o.total),
     o.date,

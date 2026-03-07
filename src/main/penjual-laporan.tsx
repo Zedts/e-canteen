@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import { FileDown, TrendingUp, ShoppingBag, Banknote } from "lucide-react";
 import { cn, formatCurrency } from "@/src/lib/utils";
-import { MOCK_DAILY_REPORTS, MOCK_REPORT_ORDERS, MOCK_PENDING_COUNT } from "@/src/lib/mock-dashboard";
 import { exportDailyReports, exportOrderLog } from "@/src/lib/report-utils";
 import { PenjualShell } from "@/src/components/penjual/penjual-shell";
 import type { DailyReport, ReportOrder } from "@/src/types/penjual";
@@ -83,12 +82,18 @@ function SummaryCard({ label, value, icon, iconBg }: SummaryCardProps) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function PenjualLaporan() {
+interface Props {
+  dailyReports: DailyReport[];
+  reportOrders: ReportOrder[];
+  pendingCount: number;
+}
+
+export default function PenjualLaporan({ dailyReports, reportOrders, pendingCount }: Props) {
   const [activePeriod, setActivePeriod] = useState<PeriodKey>("week");
 
   const period = PERIODS.find((p) => p.key === activePeriod)!;
-  const filteredReports = useMemo(() => filterByPeriod(MOCK_DAILY_REPORTS, period.days), [period.days]);
-  const filteredOrders = useMemo(() => filterByPeriod(MOCK_REPORT_ORDERS, period.days), [period.days]);
+  const filteredReports = useMemo(() => filterByPeriod(dailyReports, period.days), [dailyReports, period.days]);
+  const filteredOrders = useMemo(() => filterByPeriod(reportOrders, period.days), [reportOrders, period.days]);
   const summary = useMemo(() => computeSummary(filteredReports, filteredOrders), [filteredReports, filteredOrders]);
 
   function handleExportReports() {
@@ -100,7 +105,7 @@ export default function PenjualLaporan() {
   }
 
   return (
-    <PenjualShell activePage="laporan" pendingOrderCount={MOCK_PENDING_COUNT}>
+    <PenjualShell activePage="laporan" pendingOrderCount={pendingCount}>
       <div className="max-w-7xl mx-auto animate-fade-in">
         {/* Page header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -248,7 +253,6 @@ export default function PenjualLaporan() {
                       <td className="px-6 py-4 font-mono text-gray-400 text-xs">{order.id}</td>
                       <td className="px-6 py-4">
                         <p className="font-semibold text-gray-900">{order.customerName}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{order.className}</p>
                       </td>
                       <td className="px-6 py-4 text-gray-600 max-w-50">
                         <p className="truncate">{order.items.join(", ")}</p>

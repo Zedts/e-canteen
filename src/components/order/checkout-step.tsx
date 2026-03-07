@@ -44,13 +44,11 @@ export function CheckoutStep({ user, slot, onBack }: CheckoutStepProps) {
     setErrorMessage("");
 
     const items = cartEntries.map(({ item, quantity }) => ({
-      menuItemId: item.id,
-      name:       item.name,
-      price:      item.price,
+      productId: item.id,
       quantity,
     }));
 
-    const result = await placeOrder(user.id, slot.id, items, cartTotal);
+    const result = await placeOrder(user.id, slot.id, items);
 
     if (!result.ok) {
       setErrorMessage(result.error);

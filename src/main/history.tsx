@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ClipboardList, ShoppingBag, AlertCircle } from "lucide-react";
 import { Navbar } from "@/src/components/home/navbar";
@@ -9,20 +10,34 @@ import { FilterTabs } from "@/src/components/history/filter-tabs";
 import { OrderCard } from "@/src/components/history/order-card";
 import type { OrderWithItems, HistoryFilter } from "@/src/types/history";
 import { isActiveOrder, matchesFilter } from "@/src/types/history";
+import { cancelOrder } from "@/src/lib/actions";
 
 interface HistoryProps {
   user: {
-    name?: string | null;
-    email?: string | null;
+    id:      string;
+    name?:   string | null;
+    email?:  string | null;
     balance: number;
-    role: "USER" | "PENJUAL" | "ADMIN";
+    role:    "USER" | "PENJUAL" | "ADMIN";
   };
-  orders: OrderWithItems[];
+  orders:        OrderWithItems[];
   dbUnavailable?: boolean;
 }
 
-export default function History({ user, orders, dbUnavailable }: HistoryProps) {
-  const [filter, setFilter] = useState<HistoryFilter>("all");
+export default function History({ user, orders: initialOrders, dbUnavailable }: HistoryProps) {
+  const router = useRouter();
+  const [filter, setFilter]   = useState<HistoryFilter>("all");
+  const [orders, setOrders]   = useState<OrderWithItems[]>(initialOrders);
+
+  async function handleCancel(orderId: string) {
+    const result = await cancelOrder(orderId, user.id);
+    if (result.ok) {
+      setOrders((prev) =>
+        prev.map((o) => o.id === orderId ? { ...o, status: "CANCELLED" as const } : o)
+      );
+      router.refresh();
+    }
+  }
 
   const counts = {
     all:       orders.length,
@@ -68,7 +83,7 @@ export default function History({ user, orders, dbUnavailable }: HistoryProps) {
         ) : (
           <div className="space-y-4">
             {visibleOrders.map((order) => (
-              <OrderCard key={order.id} order={order} />
+              <OrderCard key={order.id} order={order} onCancel={handleCancel} />
             ))}
           </div>
         )}

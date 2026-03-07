@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
-import type { StatData } from "@/src/lib/mock-dashboard";
+import type { StatData } from "@/src/types/penjual";
 
 interface StatCardProps {
   stat: StatData;

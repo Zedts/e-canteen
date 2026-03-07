@@ -43,3 +43,7 @@ next-env.d.ts
 
 # Prisma generated files
 src/generated
+
+# User-uploaded images (keep folder structure, ignore actual files)
+/public/uploads/*
+!/public/uploads/.gitkeep

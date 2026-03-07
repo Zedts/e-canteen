@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { Plus, Minus, Star } from "lucide-react";
-import type { MenuItem } from "@/src/lib/menu-data";
+import type { Product } from "@/src/types/product";
 import { formatCurrency } from "@/src/lib/utils";
 import { cn } from "@/src/lib/utils";
 import { Badge } from "@/src/components/ui/badge";
 
 interface OrderMenuCardProps {
-  item: MenuItem;
+  item: Product;
   quantity: number;
   onAdd: () => void;
   onRemove: () => void;

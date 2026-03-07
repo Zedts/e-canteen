@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { useCart } from "@/src/hooks/use-cart";
-import { MENU_ITEMS } from "@/src/lib/menu-data";
+import type { Product } from "@/src/types/product";
 import type { Cart, CartEntry } from "@/src/types/order";
 
 const STORAGE_KEY = "ecanteen_cart";
@@ -35,7 +35,7 @@ function loadCart(): Cart {
   }
 }
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({ children, products }: { children: ReactNode; products: Product[] }) {
   const { cart, add, remove, removeAll, clear, restore, totalItems } = useCart();
 
   // Hydrate from sessionStorage on first client render
@@ -50,9 +50,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
   }, [cart]);
 
-  const cartEntries: CartEntry[] = MENU_ITEMS.filter(
-    (item) => (cart[item.id] ?? 0) > 0,
-  ).map((item) => ({ item, quantity: cart[item.id] }));
+  const cartEntries: CartEntry[] = products
+    .filter((p) => (cart[p.id] ?? 0) > 0)
+    .map((p) => ({ item: p, quantity: cart[p.id] }));
 
   const cartTotal = cartEntries.reduce(
     (sum, { item, quantity }) => sum + item.price * quantity,

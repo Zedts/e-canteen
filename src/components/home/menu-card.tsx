@@ -1,12 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
-import type { MenuItem } from "@/src/lib/menu-data";
+import type { Product } from "@/src/types/product";
 import { formatCurrency } from "@/src/lib/utils";
 import { Badge } from "@/src/components/ui/badge";
 
 interface MenuCardProps {
-  item: MenuItem;
+  item: Product;
 }
 
 export function MenuCard({ item }: MenuCardProps) {

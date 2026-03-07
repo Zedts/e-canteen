@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MENU_ITEMS, MENU_CATEGORIES, type MenuCategory } from "@/src/lib/menu-data";
+import { MENU_CATEGORIES, type MenuCategory } from "@/src/lib/menu-data";
+import type { Product } from "@/src/types/product";
 import { Navbar }           from "@/src/components/home/navbar";
 import { BottomNav }        from "@/src/components/home/bottom-nav";
 import { WalletCard }       from "@/src/components/home/wallet-card";
@@ -11,17 +12,19 @@ import { MenuCard }         from "@/src/components/home/menu-card";
 
 interface HomeUserProps {
   user: {
-    name?: string | null;
-    email?: string | null;
+    id:      string;
+    name?:   string | null;
+    email?:  string | null;
     balance: number;
-    role: "USER" | "PENJUAL" | "ADMIN";
+    role:    "USER" | "PENJUAL" | "ADMIN";
   };
+  products: Product[];
 }
 
-export default function HomeUser({ user }: HomeUserProps) {
+export default function HomeUser({ user, products }: HomeUserProps) {
   const [activeCategory, setActiveCategory] = useState<MenuCategory>(MENU_CATEGORIES[0]);
 
-  const filteredMenu = MENU_ITEMS.filter(
+  const filteredMenu = products.filter(
     (item) => item.category === activeCategory,
   );
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ClipboardList } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { TIME_SLOTS } from "@/src/lib/menu-data";
-import { MOCK_QUEUE_ORDERS } from "@/src/lib/mock-dashboard";
+import { markOrderReady, completeOrderById } from "@/src/lib/actions";
 import { PenjualShell } from "@/src/components/penjual/penjual-shell";
 import type { QueueOrder, QueueOrderStatus } from "@/src/types/penjual";
 
@@ -49,7 +49,6 @@ function OrderCard({ order, onMarkReady, onComplete }: OrderCardProps) {
             {order.customerName}
           </h3>
           <p className="text-xs text-gray-500 font-medium mt-0.5">
-            {order.className} •{" "}
             <span className="font-mono text-gray-400">{order.id}</span>
           </p>
         </div>
@@ -100,8 +99,12 @@ function EmptyState() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function PenjualQueue() {
-  const [orders, setOrders] = useState<QueueOrder[]>(MOCK_QUEUE_ORDERS);
+interface Props {
+  initialOrders: QueueOrder[];
+}
+
+export default function PenjualQueue({ initialOrders }: Props) {
+  const [orders, setOrders] = useState<QueueOrder[]>(initialOrders);
   const [activeSlot, setActiveSlot] = useState<"break1" | "break2">("break1");
 
   const pendingOrderCount = orders.filter((o) => o.status === "PREPARING").length;
@@ -113,10 +116,12 @@ export default function PenjualQueue() {
     setOrders((prev) =>
       prev.map((o) => (o.id === id ? { ...o, status: "READY" as const } : o)),
     );
+    void markOrderReady(id);
   }
 
   function completeOrder(id: string) {
     setOrders((prev) => prev.filter((o) => o.id !== id));
+    void completeOrderById(id);
   }
 
   return (

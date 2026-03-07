@@ -1,13 +1,19 @@
 import { Banknote, ShoppingBag, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { DASHBOARD_STATS, TOP_MENU_ITEMS } from "@/src/lib/mock-dashboard";
+import type { StatData, TopMenuItem } from "@/src/types/penjual";
 import { StatCard } from "./stat-card";
 import { OrdersChart } from "./orders-chart";
 import { TopItemsList } from "./top-items-list";
 
 const STAT_ICONS: LucideIcon[] = [Banknote, ShoppingBag, Users];
 
-export function DashboardPage() {
+interface DashboardPageProps {
+  stats: StatData[];
+  chartData: { labels: string[]; values: number[] };
+  topItems: TopMenuItem[];
+}
+
+export function DashboardPage({ stats, chartData, topItems }: DashboardPageProps) {
   const operationalDate = new Date().toLocaleDateString("id-ID", {
     weekday: "long",
     day: "numeric",
@@ -39,7 +45,7 @@ export function DashboardPage() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {DASHBOARD_STATS.map((stat, i) => (
+        {stats.map((stat, i) => (
           <StatCard key={stat.label} stat={stat} icon={STAT_ICONS[i]} />
         ))}
       </div>
@@ -47,9 +53,9 @@ export function DashboardPage() {
       {/* Chart + Top items */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <OrdersChart />
+          <OrdersChart labels={chartData.labels} values={chartData.values} />
         </div>
-        <TopItemsList items={TOP_MENU_ITEMS} />
+        <TopItemsList items={topItems} />
       </div>
     </div>
   );

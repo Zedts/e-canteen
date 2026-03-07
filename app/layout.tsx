@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import { AuthSessionProvider } from "@/src/context/session-provider";
 import { CartProvider } from "@/src/context/cart-context";
 import { GlobalCartFab } from "@/src/components/order/global-cart-fab";
+import { getActiveProducts } from "@/src/lib/actions";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,16 +23,18 @@ export const metadata: Metadata = {
   description: "Platform pemesanan kantin digital",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const products = await getActiveProducts();
+
   return (
     <html lang="id" className={`${inter.variable} ${playfair.variable}`}>
       <body>
         <AuthSessionProvider>
-          <CartProvider>
+          <CartProvider products={products}>
             {children}
             <GlobalCartFab />
           </CartProvider>

@@ -11,26 +11,27 @@ import { CartCheckoutBar } from "@/src/components/order/cart-checkout-bar";
 import { CheckoutStep } from "@/src/components/order/checkout-step";
 import { useCartContext } from "@/src/context/cart-context";
 import {
-  MENU_ITEMS,
   MENU_CATEGORIES,
   TIME_SLOTS,
   type MenuCategory,
   type TimeSlot,
 } from "@/src/lib/menu-data";
+import type { Product } from "@/src/types/product";
 
 interface OrderProps {
   user: {
-    id: string;
-    name?: string | null;
-    email?: string | null;
+    id:      string;
+    name?:   string | null;
+    email?:  string | null;
     balance: number;
-    role: "USER" | "PENJUAL" | "ADMIN";
+    role:    "USER" | "PENJUAL" | "ADMIN";
   };
+  products: Product[];
 }
 
 type OrderStep = "selecting" | "checkout";
 
-export default function Order({ user }: OrderProps) {
+export default function Order({ user, products }: OrderProps) {
   const [step, setStep] = useState<OrderStep>("selecting");
   const [activeCategory, setActiveCategory] = useState<MenuCategory>(
     MENU_CATEGORIES[0],
@@ -39,7 +40,7 @@ export default function Order({ user }: OrderProps) {
   const { cart, cartEntries, cartTotal, totalItems, add, remove, removeAll } =
     useCartContext();
 
-  const filteredItems = MENU_ITEMS.filter(
+  const filteredItems = products.filter(
     (item) => item.category === activeCategory,
   );
 

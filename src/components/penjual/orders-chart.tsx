@@ -10,8 +10,7 @@ import {
   Filler,
   Tooltip,
 } from "chart.js";
-import type { ChartData, ChartOptions } from "chart.js";
-import { ORDER_CHART_DATA } from "@/src/lib/mock-dashboard";
+import type { ChartOptions } from "chart.js";
 
 ChartJS.register(
   CategoryScale,
@@ -24,26 +23,6 @@ ChartJS.register(
 
 const BRAND_COLOR = "#f59e0b";
 const BRAND_FILL = "rgba(245, 158, 11, 0.2)";
-
-const chartData: ChartData<"line"> = {
-  labels: ORDER_CHART_DATA.labels,
-  datasets: [
-    {
-      label: "Pesanan",
-      data: ORDER_CHART_DATA.values,
-      borderColor: BRAND_COLOR,
-      borderWidth: 3,
-      backgroundColor: BRAND_FILL,
-      fill: true,
-      tension: 0.4,
-      pointBackgroundColor: "#fff",
-      pointBorderColor: BRAND_COLOR,
-      pointBorderWidth: 2,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    },
-  ],
-};
 
 const chartOptions: ChartOptions<"line"> = {
   responsive: true,
@@ -73,7 +52,32 @@ const chartOptions: ChartOptions<"line"> = {
   },
 };
 
-export function OrdersChart() {
+interface OrdersChartProps {
+  labels: string[];
+  values: number[];
+}
+
+export function OrdersChart({ labels, values }: OrdersChartProps) {
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        label: "Pesanan",
+        data: values,
+        borderColor: BRAND_COLOR,
+        borderWidth: 3,
+        backgroundColor: BRAND_FILL,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: "#fff",
+        pointBorderColor: BRAND_COLOR,
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      },
+    ],
+  };
+
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm h-full">
       <h3 className="font-serif font-bold text-lg text-gray-900 mb-6">
