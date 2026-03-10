@@ -10,7 +10,7 @@ interface AdminUsersProps {
 export default function AdminUsers({ users, dbUnavailable }: AdminUsersProps) {
   return (
     <AdminShell activePage="users">
-      <div className="max-w-6xl mx-auto animate-fade-in">
+      <div className="animate-fade-in">
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-gray-900">Kelola Pengguna</h1>
           <p className="text-gray-500 mt-1 text-sm">

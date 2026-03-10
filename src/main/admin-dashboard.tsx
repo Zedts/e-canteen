@@ -16,7 +16,7 @@ export default function AdminDashboard({ stats }: AdminDashboardProps) {
 
   return (
     <AdminShell activePage="dashboard">
-      <div className="max-w-5xl mx-auto animate-fade-in">
+      <div className="animate-fade-in">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
           <div>
             <h1 className="font-serif text-3xl font-bold text-gray-900">Dashboard Admin</h1>
