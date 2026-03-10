@@ -22,16 +22,17 @@ enum OrderStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
-  email     String   @unique
+  email     String    @unique
   password  String
-  role      Role     @default(USER)
-  balance   Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role      @default(USER)
+  balance   Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   orders    Order[]
+  products  Product[]
 }
 
 model Category {
@@ -43,6 +44,8 @@ model Category {
 
 model Product {
   id         String    @id @default(cuid())
+  sellerId   String
+  seller     User      @relation(fields: [sellerId], references: [id])
   name       String
   price      Int
   category   String

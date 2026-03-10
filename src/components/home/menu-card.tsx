@@ -51,6 +51,7 @@ export function MenuCard({ item }: MenuCardProps) {
       <p className="text-brand-600 font-bold text-sm mt-1">
         {formatCurrency(item.price)}
       </p>
+      <p className="text-gray-400 text-[10px] mt-1 truncate">{item.sellerName}</p>
     </Link>
   );
 }

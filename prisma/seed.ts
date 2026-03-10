@@ -50,43 +50,49 @@ async function seed() {
 
   console.log("Categories seeded: 4");
 
+  // --- Users (created before products so we have seller IDs) ---
+
+  const [adminHash, penjualAHash, penjualBHash, userHash] = await Promise.all([
+    bcrypt.hash("admin123",    12),
+    bcrypt.hash("penjual123",  12),
+    bcrypt.hash("penjual456",  12),
+    bcrypt.hash("user123",     12),
+  ]);
+
+  const [admin, penjualA, penjualB, budi, dewi, eko, sari, rizky] = await Promise.all([
+    prisma.user.create({ data: { name: "Admin",            email: "admin@ecanteen.id",    password: adminHash,    role: "ADMIN",   balance:      0 } }),
+    prisma.user.create({ data: { name: "Penjual Kantin A", email: "penjual@ecanteen.id",  password: penjualAHash, role: "PENJUAL", balance:      0 } }),
+    prisma.user.create({ data: { name: "Penjual Kantin B", email: "penjualb@ecanteen.id", password: penjualBHash, role: "PENJUAL", balance:      0 } }),
+    prisma.user.create({ data: { name: "Budi Santoso",     email: "budi@siswa.id",        password: userHash,     role: "USER",    balance: 150000 } }),
+    prisma.user.create({ data: { name: "Dewi Rahayu",      email: "dewi@siswa.id",        password: userHash,     role: "USER",    balance: 200000 } }),
+    prisma.user.create({ data: { name: "Eko Prasetyo",     email: "eko@siswa.id",         password: userHash,     role: "USER",    balance:  80000 } }),
+    prisma.user.create({ data: { name: "Sari Indah",       email: "sari@siswa.id",        password: userHash,     role: "USER",    balance: 120000 } }),
+    prisma.user.create({ data: { name: "Rizky Maulana",    email: "rizky@siswa.id",       password: userHash,     role: "USER",    balance:  95000 } }),
+  ]);
+
+  void admin;
+
+  console.log("Users seeded: 8");
+
   // --- Products ---
+  // Penjual A owns: Makanan Utama (p1–p4) + Cemilan (p5–p6)
+  // Penjual B owns: Minuman (p7–p9) + Menu Sehat (p10–p11)
 
   const [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11] = await Promise.all([
-    prisma.product.create({ data: { name: "Classic Cheeseburger", price: 25000, category: "Makanan Utama", rating: 4.8, imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Nasi Goreng Spesial",  price: 20000, category: "Makanan Utama", rating: 4.7, imageUrl: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Ayam Geprek",          price: 18000, category: "Makanan Utama", rating: 4.6, imageUrl: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Mie Goreng",           price: 15000, category: "Makanan Utama", rating: 4.5, imageUrl: "https://images.unsplash.com/photo-1555126634-323283e090fa?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Pisang Goreng Crispy", price:  8000, category: "Cemilan",       rating: 4.9, imageUrl: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Kentang Goreng",       price: 10000, category: "Cemilan",       rating: 4.4, imageUrl: "https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Es Teh Manis",         price:  5000, category: "Minuman",       rating: 4.8, imageUrl: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Iced Latte",           price: 15000, category: "Minuman",       rating: 4.7, imageUrl: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Jus Alpukat Susu",     price: 12000, category: "Minuman",       rating: 4.6, imageUrl: "https://images.unsplash.com/photo-1546173159-315724a31696?w=400&h=400&fit=crop", available: false } }),
-    prisma.product.create({ data: { name: "Salad Buah Segar",     price: 12000, category: "Menu Sehat",    rating: 4.5, imageUrl: "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=400&fit=crop", available: true  } }),
-    prisma.product.create({ data: { name: "Smoothie Hijau",       price: 15000, category: "Menu Sehat",    rating: 4.4, imageUrl: "https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualA.id, name: "Classic Cheeseburger", price: 25000, category: "Makanan Utama", rating: 4.8, imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualA.id, name: "Nasi Goreng Spesial",  price: 20000, category: "Makanan Utama", rating: 4.7, imageUrl: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualA.id, name: "Ayam Geprek",          price: 18000, category: "Makanan Utama", rating: 4.6, imageUrl: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualA.id, name: "Mie Goreng",           price: 15000, category: "Makanan Utama", rating: 4.5, imageUrl: "https://images.unsplash.com/photo-1555126634-323283e090fa?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualA.id, name: "Pisang Goreng Crispy", price:  8000, category: "Cemilan",       rating: 4.9, imageUrl: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualA.id, name: "Kentang Goreng",       price: 10000, category: "Cemilan",       rating: 4.4, imageUrl: "https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualB.id, name: "Es Teh Manis",         price:  5000, category: "Minuman",       rating: 4.8, imageUrl: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualB.id, name: "Iced Latte",           price: 15000, category: "Minuman",       rating: 4.7, imageUrl: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualB.id, name: "Jus Alpukat Susu",     price: 12000, category: "Minuman",       rating: 4.6, imageUrl: "https://images.unsplash.com/photo-1546173159-315724a31696?w=400&h=400&fit=crop", available: false } }),
+    prisma.product.create({ data: { sellerId: penjualB.id, name: "Salad Buah Segar",     price: 12000, category: "Menu Sehat",    rating: 4.5, imageUrl: "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=400&fit=crop", available: true  } }),
+    prisma.product.create({ data: { sellerId: penjualB.id, name: "Smoothie Hijau",       price: 15000, category: "Menu Sehat",    rating: 4.4, imageUrl: "https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=400&h=400&fit=crop", available: true  } }),
   ]);
 
-  console.log("Products seeded: 11");
-
-  // --- Users ---
-
-  const [adminHash, penjualHash, userHash] = await Promise.all([
-    bcrypt.hash("admin123",   12),
-    bcrypt.hash("penjual123", 12),
-    bcrypt.hash("user123",    12),
-  ]);
-
-  const [admin, penjual, budi, dewi, eko, sari, rizky] = await Promise.all([
-    prisma.user.create({ data: { name: "Admin",          email: "admin@ecanteen.id",   password: adminHash,   role: "ADMIN",   balance:      0 } }),
-    prisma.user.create({ data: { name: "Penjual Kantin", email: "penjual@ecanteen.id", password: penjualHash, role: "PENJUAL", balance:      0 } }),
-    prisma.user.create({ data: { name: "Budi Santoso",  email: "budi@siswa.id",        password: userHash,    role: "USER",    balance: 150000 } }),
-    prisma.user.create({ data: { name: "Dewi Rahayu",   email: "dewi@siswa.id",        password: userHash,    role: "USER",    balance: 200000 } }),
-    prisma.user.create({ data: { name: "Eko Prasetyo",  email: "eko@siswa.id",         password: userHash,    role: "USER",    balance:  80000 } }),
-    prisma.user.create({ data: { name: "Sari Indah",    email: "sari@siswa.id",        password: userHash,    role: "USER",    balance: 120000 } }),
-    prisma.user.create({ data: { name: "Rizky Maulana", email: "rizky@siswa.id",       password: userHash,    role: "USER",    balance:  95000 } }),
-  ]);
-
-  void admin; void penjual;
+  console.log("Products seeded: 11 (6 Penjual A, 5 Penjual B)");
 
   // --- Helper: create a completed order from real product refs ---
 
@@ -233,13 +239,14 @@ async function seed() {
   await prisma.$disconnect();
 
   const accounts = [
-    { email: "admin@ecanteen.id",   pass: "admin123",   role: "ADMIN"   },
-    { email: "penjual@ecanteen.id", pass: "penjual123", role: "PENJUAL" },
-    { email: "budi@siswa.id",       pass: "user123",    role: "USER"    },
-    { email: "dewi@siswa.id",       pass: "user123",    role: "USER"    },
-    { email: "eko@siswa.id",        pass: "user123",    role: "USER"    },
-    { email: "sari@siswa.id",       pass: "user123",    role: "USER"    },
-    { email: "rizky@siswa.id",      pass: "user123",    role: "USER"    },
+    { email: "admin@ecanteen.id",    pass: "admin123",   role: "ADMIN"   },
+    { email: "penjual@ecanteen.id",  pass: "penjual123", role: "PENJUAL" },
+    { email: "penjualb@ecanteen.id", pass: "penjual456", role: "PENJUAL" },
+    { email: "budi@siswa.id",        pass: "user123",    role: "USER"    },
+    { email: "dewi@siswa.id",        pass: "user123",    role: "USER"    },
+    { email: "eko@siswa.id",         pass: "user123",    role: "USER"    },
+    { email: "sari@siswa.id",        pass: "user123",    role: "USER"    },
+    { email: "rizky@siswa.id",       pass: "user123",    role: "USER"    },
   ];
 
   console.log("Seeded successfully!");
@@ -248,7 +255,7 @@ async function seed() {
     console.log(`  ${a.email.padEnd(28)} / ${a.pass.padEnd(12)} (${a.role})`);
   }
   console.log("");
-  console.log("Products: 11  |  Orders: 48 historical + 5 today + 3 active");
+  console.log("Products: 11 (6 Penjual A, 5 Penjual B)  |  Orders: 48 historical + 5 today + 3 active");
 }
 
 seed().catch((err) => {

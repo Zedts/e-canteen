@@ -56,6 +56,7 @@ export function OrderMenuCard({ item, quantity, onAdd, onRemove }: OrderMenuCard
           <p className="text-brand-600 font-bold text-sm mt-1">
             {formatCurrency(item.price)}
           </p>
+          <p className="text-gray-400 text-[10px] mt-0.5">{item.sellerName}</p>
         </div>
 
         <div className="flex items-center justify-end mt-2">

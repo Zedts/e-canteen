@@ -13,7 +13,7 @@ import {
   getDailyReports,
   getReportOrders,
   getActiveProducts,
-  getAllProducts,
+  getProductsBySeller,
   listCategories,
 } from "@/src/lib/actions";
 import HomeUser from "@/src/main/home-user";
@@ -92,10 +92,10 @@ export default async function Page({ searchParams }: PageProps) {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
     const [pendingCount, stats, chartData, topItems] = await Promise.all([
-      getPendingOrderCount(),
-      getPenjualStats(),
-      getHourlyOrderCounts(),
-      getTopMenuItems(),
+      getPendingOrderCount(session.user.id),
+      getPenjualStats(session.user.id),
+      getHourlyOrderCounts(session.user.id),
+      getTopMenuItems(session.user.id),
     ]);
     return <HomePenjual pendingCount={pendingCount} stats={stats} chartData={chartData} topItems={topItems} />;
   }
@@ -103,7 +103,7 @@ export default async function Page({ searchParams }: PageProps) {
   if (view === "penjual-queue") {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
-    const initialOrders = await getPenjualQueueOrders();
+    const initialOrders = await getPenjualQueueOrders(session.user.id);
     return <PenjualQueue initialOrders={initialOrders} />;
   }
 
@@ -111,8 +111,8 @@ export default async function Page({ searchParams }: PageProps) {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
     const [pendingCount, products, categoriesResult] = await Promise.all([
-      getPendingOrderCount(),
-      getAllProducts(),
+      getPendingOrderCount(session.user.id),
+      getProductsBySeller(session.user.id),
       listCategories(),
     ]);
     const categories = categoriesResult.ok ? categoriesResult.data!.map((c) => c.name) : [];
@@ -123,9 +123,9 @@ export default async function Page({ searchParams }: PageProps) {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
     const [pendingCount, dailyReports, reportOrders] = await Promise.all([
-      getPendingOrderCount(),
-      getDailyReports(30),
-      getReportOrders(30),
+      getPendingOrderCount(session.user.id),
+      getDailyReports(30, session.user.id),
+      getReportOrders(30, session.user.id),
     ]);
     return <PenjualLaporan dailyReports={dailyReports} reportOrders={reportOrders} pendingCount={pendingCount} />;
   }

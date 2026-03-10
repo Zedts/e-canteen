@@ -1,7 +1,9 @@
 "use server";
 
+import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
 import { db } from "./db";
+import { authOptions } from "./auth";
 import type { Product, Category } from "@/src/types/product";
 import type { AdminStats, AdminUser } from "@/src/types/admin";
 import type {
@@ -163,6 +165,16 @@ export async function deleteUserById(id: string): Promise<ActionResult> {
     if (!target) return { ok: false, error: "Akun tidak ditemukan." };
     if (target.role === "ADMIN") return { ok: false, error: "Tidak dapat menghapus akun admin." };
 
+    if (target.role === "PENJUAL") {
+      const productCount = await db.product.count({ where: { sellerId: id } });
+      if (productCount > 0) {
+        return {
+          ok: false,
+          error: `Penjual masih memiliki ${productCount} produk. Hapus semua produk terlebih dahulu.`,
+        };
+      }
+    }
+
     await db.$transaction(async (tx) => {
       await tx.order.deleteMany({ where: { userId: id } });
       await tx.user.delete({ where: { id } });
@@ -176,17 +188,22 @@ export async function deleteUserById(id: string): Promise<ActionResult> {
 
 // ─── Penjual ───────────────────────────────────────────────────────────────────
 
-/** Count of orders currently being prepared (badge on queue nav). */
-export async function getPendingOrderCount(): Promise<number> {
+/** Count of PREPARING orders that contain at least one of this seller's products. */
+export async function getPendingOrderCount(sellerId: string): Promise<number> {
   try {
-    return await db.order.count({ where: { status: "PREPARING" } });
+    return await db.order.count({
+      where: {
+        status: "PREPARING",
+        items: { some: { product: { sellerId } } },
+      },
+    });
   } catch {
     return 0;
   }
 }
 
-/** Today's revenue, order count, and unique active customers. */
-export async function getPenjualStats(): Promise<StatData[]> {
+/** Today's revenue, order count, and unique active customers — scoped to this seller's products. */
+export async function getPenjualStats(sellerId: string): Promise<StatData[]> {
   try {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -194,24 +211,26 @@ export async function getPenjualStats(): Promise<StatData[]> {
     const yesterdayStart = new Date(todayStart);
     yesterdayStart.setDate(yesterdayStart.getDate() - 1);
 
-    const [todayOrders, yesterdayOrders] = await Promise.all([
-      db.order.findMany({
-        where: { createdAt: { gte: todayStart }, status: { not: "CANCELLED" } },
-        select: { total: true, userId: true },
+    const itemFilter = (dateFilter: object) => ({
+      product: { sellerId },
+      order: { ...dateFilter, status: { not: "CANCELLED" as const } },
+    });
+
+    const [todayItems, yesterdayItems] = await Promise.all([
+      db.orderItem.findMany({
+        where: itemFilter({ createdAt: { gte: todayStart } }),
+        select: { quantity: true, price: true, orderId: true, order: { select: { userId: true } } },
       }),
-      db.order.findMany({
-        where: {
-          createdAt: { gte: yesterdayStart, lt: todayStart },
-          status: { not: "CANCELLED" },
-        },
-        select: { total: true },
+      db.orderItem.findMany({
+        where: itemFilter({ createdAt: { gte: yesterdayStart, lt: todayStart } }),
+        select: { quantity: true, price: true },
       }),
     ]);
 
-    const todayRevenue   = todayOrders.reduce((s, o) => s + o.total, 0);
-    const yesterdayRevenue = yesterdayOrders.reduce((s, o) => s + o.total, 0);
-    const todayCount     = todayOrders.length;
-    const activeCustomers = new Set(todayOrders.map((o) => o.userId)).size;
+    const todayRevenue     = todayItems.reduce((s, i) => s + i.quantity * i.price, 0);
+    const yesterdayRevenue = yesterdayItems.reduce((s, i) => s + i.quantity * i.price, 0);
+    const todayCount       = new Set(todayItems.map((i) => i.orderId)).size;
+    const activeCustomers  = new Set(todayItems.map((i) => i.order.userId)).size;
 
     const revDiff = yesterdayRevenue > 0
       ? Math.round(((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100)
@@ -255,12 +274,18 @@ export async function getPenjualStats(): Promise<StatData[]> {
   }
 }
 
-/** All orders with PREPARING or READY status, for the queue page. */
-export async function getPenjualQueueOrders(): Promise<QueueOrder[]> {
+/** Active queue orders (PREPARING/READY) that contain this seller's products. */
+export async function getPenjualQueueOrders(sellerId: string): Promise<QueueOrder[]> {
   try {
     const orders = await db.order.findMany({
-      where: { status: { in: ["PREPARING", "READY"] } },
-      include: { items: true, user: { select: { name: true } } },
+      where: {
+        status: { in: ["PREPARING", "READY"] },
+        items: { some: { product: { sellerId } } },
+      },
+      include: {
+        items: { where: { product: { sellerId } } },
+        user: { select: { name: true } },
+      },
       orderBy: { createdAt: "asc" },
     });
 
@@ -296,15 +321,19 @@ export async function completeOrderById(orderId: string): Promise<ActionResult> 
   }
 }
 
-/** Hourly order distribution for today (hours 07–15). */
-export async function getHourlyOrderCounts(): Promise<{ labels: string[]; values: number[] }> {
+/** Hourly order distribution for today (hours 07–15), scoped to this seller's products. */
+export async function getHourlyOrderCounts(sellerId: string): Promise<{ labels: string[]; values: number[] }> {
   const HOUR_LABELS = ["07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"];
   try {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const orders = await db.order.findMany({
-      where: { createdAt: { gte: todayStart }, status: { not: "CANCELLED" } },
+      where: {
+        createdAt: { gte: todayStart },
+        status: { not: "CANCELLED" },
+        items: { some: { product: { sellerId } } },
+      },
       select: { createdAt: true },
     });
 
@@ -321,69 +350,84 @@ export async function getHourlyOrderCounts(): Promise<{ labels: string[]; values
   }
 }
 
-/** Top 3 most-sold products, joined with live product data from DB. */
-export async function getTopMenuItems(): Promise<TopMenuItem[]> {
+/** Top 3 most-sold products for this seller. */
+export async function getTopMenuItems(sellerId: string): Promise<TopMenuItem[]> {
   try {
     const grouped = await db.orderItem.groupBy({
       by: ["productId"],
+      where: { product: { sellerId } },
       _sum: { quantity: true },
       orderBy: { _sum: { quantity: "desc" } },
       take: 3,
     });
 
     const productIds = grouped.map((g) => g.productId);
-    const products = await db.product.findMany({ where: { id: { in: productIds } } });
+    const products = await db.product.findMany({
+      where: { id: { in: productIds } },
+      include: { seller: { select: { name: true } } },
+    });
     const productMap = new Map(products.map((p) => [p.id, p]));
 
     return grouped.flatMap((g) => {
-      const product = productMap.get(g.productId);
-      if (!product) return [];
-      return [{ ...product, soldCount: g._sum.quantity ?? 0 }];
+      const row = productMap.get(g.productId);
+      if (!row) return [];
+      const { seller, ...product } = row;
+      return [{ ...product, sellerName: seller.name, soldCount: g._sum.quantity ?? 0 }];
     });
   } catch {
     return [];
   }
 }
 
-/** Daily revenue and order count aggregated by date. */
-export async function getDailyReports(days: number): Promise<DailyReport[]> {
+/** Daily revenue and order count for this seller's products, aggregated by date. */
+export async function getDailyReports(days: number, sellerId: string): Promise<DailyReport[]> {
   try {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - (days - 1));
     cutoff.setHours(0, 0, 0, 0);
 
-    const orders = await db.order.findMany({
-      where: { createdAt: { gte: cutoff }, status: { not: "CANCELLED" } },
-      select: { total: true, createdAt: true },
+    const items = await db.orderItem.findMany({
+      where: {
+        product: { sellerId },
+        order: { createdAt: { gte: cutoff }, status: { not: "CANCELLED" } },
+      },
+      select: { quantity: true, price: true, orderId: true, order: { select: { createdAt: true } } },
     });
 
-    const byDate = new Map<string, { orders: number; revenue: number }>();
-    for (const o of orders) {
-      const date = o.createdAt.toISOString().split("T")[0];
-      const entry = byDate.get(date) ?? { orders: 0, revenue: 0 };
-      entry.orders++;
-      entry.revenue += o.total;
+    const byDate = new Map<string, { orderIds: Set<string>; revenue: number }>();
+    for (const item of items) {
+      const date  = item.order.createdAt.toISOString().split("T")[0];
+      const entry = byDate.get(date) ?? { orderIds: new Set(), revenue: 0 };
+      entry.orderIds.add(item.orderId);
+      entry.revenue += item.quantity * item.price;
       byDate.set(date, entry);
     }
 
     return Array.from(byDate.entries())
-      .map(([date, data]) => ({ date, ...data }))
+      .map(([date, data]) => ({ date, orders: data.orderIds.size, revenue: data.revenue }))
       .sort((a, b) => b.date.localeCompare(a.date));
   } catch {
     return [];
   }
 }
 
-/** Detailed order log for the report page. */
-export async function getReportOrders(days: number): Promise<ReportOrder[]> {
+/** Detailed order log for this seller's products. */
+export async function getReportOrders(days: number, sellerId: string): Promise<ReportOrder[]> {
   try {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - (days - 1));
     cutoff.setHours(0, 0, 0, 0);
 
     const orders = await db.order.findMany({
-      where: { createdAt: { gte: cutoff }, status: { not: "CANCELLED" } },
-      include: { items: true, user: { select: { name: true } } },
+      where: {
+        createdAt: { gte: cutoff },
+        status: { not: "CANCELLED" },
+        items: { some: { product: { sellerId } } },
+      },
+      include: {
+        items: { where: { product: { sellerId } } },
+        user: { select: { name: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -391,7 +435,7 @@ export async function getReportOrders(days: number): Promise<ReportOrder[]> {
       id: o.id,
       customerName: o.user.name,
       items: o.items.map((i) => `${i.quantity}x ${i.name}`),
-      total: o.total,
+      total: o.items.reduce((s, i) => s + i.quantity * i.price, 0),
       date: o.createdAt.toISOString().split("T")[0],
       slot: o.timeSlot as "break1" | "break2",
     }));
@@ -402,22 +446,29 @@ export async function getReportOrders(days: number): Promise<ReportOrder[]> {
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 
-/** All products (including unavailable) — for penjual management. */
-export async function getAllProducts(): Promise<Product[]> {
+/** All products belonging to this seller (including unavailable) — for penjual management. */
+export async function getProductsBySeller(sellerId: string): Promise<Product[]> {
   try {
-    return await db.product.findMany({ orderBy: [{ category: "asc" }, { name: "asc" }] });
+    const rows = await db.product.findMany({
+      where: { sellerId },
+      include: { seller: { select: { name: true } } },
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+    });
+    return rows.map(({ seller, ...p }) => ({ ...p, sellerName: seller.name }));
   } catch {
     return [];
   }
 }
 
-/** Only available products — for customer-facing pages and cart. */
+/** Only available products across all sellers — for customer-facing pages. */
 export async function getActiveProducts(): Promise<Product[]> {
   try {
-    return await db.product.findMany({
+    const rows = await db.product.findMany({
       where: { available: true },
+      include: { seller: { select: { name: true } } },
       orderBy: [{ category: "asc" }, { name: "asc" }],
     });
+    return rows.map(({ seller, ...p }) => ({ ...p, sellerName: seller.name }));
   } catch {
     return [];
   }
@@ -430,9 +481,18 @@ export async function createProduct(data: {
   imageUrl: string;
   available: boolean;
 }): Promise<ActionResult<Product>> {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "PENJUAL") {
+    return { ok: false, error: "Tidak diizinkan." };
+  }
+
   try {
-    const product = await db.product.create({ data });
-    return { ok: true, data: product };
+    const row = await db.product.create({
+      data: { ...data, sellerId: session.user.id },
+      include: { seller: { select: { name: true } } },
+    });
+    const { seller, ...product } = row;
+    return { ok: true, data: { ...product, sellerName: seller.name } };
   } catch {
     return { ok: false, error: "Gagal menambah produk." };
   }
@@ -442,7 +502,16 @@ export async function updateProduct(
   id: string,
   data: { name?: string; price?: number; category?: string; imageUrl?: string; available?: boolean },
 ): Promise<ActionResult> {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "PENJUAL") {
+    return { ok: false, error: "Tidak diizinkan." };
+  }
+
   try {
+    const product = await db.product.findUnique({ where: { id }, select: { sellerId: true } });
+    if (!product) return { ok: false, error: "Produk tidak ditemukan." };
+    if (product.sellerId !== session.user.id) return { ok: false, error: "Produk bukan milik Anda." };
+
     await db.product.update({ where: { id }, data });
     return { ok: true };
   } catch {
@@ -451,11 +520,21 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string): Promise<ActionResult> {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "PENJUAL") {
+    return { ok: false, error: "Tidak diizinkan." };
+  }
+
   try {
+    const product = await db.product.findUnique({ where: { id }, select: { sellerId: true } });
+    if (!product) return { ok: false, error: "Produk tidak ditemukan." };
+    if (product.sellerId !== session.user.id) return { ok: false, error: "Produk bukan milik Anda." };
+
     const orderCount = await db.orderItem.count({ where: { productId: id } });
     if (orderCount > 0) {
       return { ok: false, error: "Produk tidak dapat dihapus karena sudah memiliki riwayat pesanan." };
     }
+
     await db.product.delete({ where: { id } });
     return { ok: true };
   } catch {

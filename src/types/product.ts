@@ -1,11 +1,13 @@
 export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-  imageUrl: string;
-  available: boolean;
-  rating: number;
+  id:         string;
+  sellerId:   string;
+  sellerName: string;
+  name:       string;
+  price:      number;
+  category:   string;
+  imageUrl:   string;
+  available:  boolean;
+  rating:     number;
 }
 
 export interface Category {
