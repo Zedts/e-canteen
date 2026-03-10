@@ -4,7 +4,7 @@ import { RegisterPenjualForm } from "@/src/components/admin/register-penjual-for
 export default function AdminDaftarPenjual() {
   return (
     <AdminShell activePage="daftar-penjual">
-      <div className="max-w-5xl mx-auto animate-fade-in">
+      <div className="animate-fade-in">
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-gray-900">Daftarkan Penjual</h1>
           <p className="text-gray-500 mt-1 text-sm">

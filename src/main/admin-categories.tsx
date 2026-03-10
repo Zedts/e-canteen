@@ -10,7 +10,7 @@ interface AdminCategoriesProps {
 export default function AdminCategories({ initialCategories, dbUnavailable }: AdminCategoriesProps) {
   return (
     <AdminShell activePage="categories">
-      <div className="max-w-3xl mx-auto animate-fade-in">
+      <div className="animate-fade-in">
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-gray-900">Kategori Menu</h1>
           <p className="text-gray-500 mt-1 text-sm">

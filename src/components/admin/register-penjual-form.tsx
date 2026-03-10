@@ -72,7 +72,7 @@ export function RegisterPenjualForm() {
   }
 
   return (
-    <div className="max-w-lg">
+    <div className="max-w-lg mx-auto">
       {successName && (
         <div className="mb-6 flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-5 py-4">
           <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
