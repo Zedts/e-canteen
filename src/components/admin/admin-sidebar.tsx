@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Users,
   UserPlus,
+  Tag,
   LogOut,
   X,
   ChevronLeft,
@@ -35,9 +36,10 @@ interface AdminSidebarProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "dashboard",       label: "Dashboard",       icon: LayoutDashboard },
-  { id: "users",           label: "Kelola Pengguna", icon: Users },
-  { id: "daftar-penjual",  label: "Daftar Penjual",  icon: UserPlus },
+  { id: "dashboard",       label: "Dashboard",        icon: LayoutDashboard },
+  { id: "users",           label: "Kelola Pengguna",  icon: Users },
+  { id: "daftar-penjual",  label: "Daftar Penjual",   icon: UserPlus },
+  { id: "categories",      label: "Kategori Menu",    icon: Tag },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────

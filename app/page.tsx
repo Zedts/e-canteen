@@ -14,6 +14,7 @@ import {
   getReportOrders,
   getActiveProducts,
   getAllProducts,
+  listCategories,
 } from "@/src/lib/actions";
 import HomeUser from "@/src/main/home-user";
 import HomePenjual from "@/src/main/home-penjual";
@@ -23,6 +24,7 @@ import PenjualLaporan from "@/src/main/penjual-laporan";
 import AdminDashboard from "@/src/main/admin-dashboard";
 import AdminUsers from "@/src/main/admin-users";
 import AdminDaftarPenjual from "@/src/main/admin-daftar-penjual";
+import AdminCategories from "@/src/main/admin-categories";
 import Login from "@/src/main/login";
 import Register from "@/src/main/register";
 import Order from "@/src/main/order";
@@ -58,15 +60,23 @@ export default async function Page({ searchParams }: PageProps) {
   if (view === "home-user") {
     if (role === "PENJUAL") redirect("/home-penjual");
     if (role === "ADMIN")   redirect("/admin-dashboard");
-    const products = await getActiveProducts();
-    return <HomeUser user={session.user} products={products} />;
+    const [products, categoriesResult] = await Promise.all([
+      getActiveProducts(),
+      listCategories(),
+    ]);
+    const categories = categoriesResult.ok ? categoriesResult.data!.map((c) => c.name) : [];
+    return <HomeUser user={session.user} products={products} categories={categories} />;
   }
 
   if (view === "order") {
     if (role === "PENJUAL") redirect("/home-penjual");
     if (role === "ADMIN")   redirect("/admin-dashboard");
-    const products = await getActiveProducts();
-    return <Order user={session.user} products={products} />;
+    const [products, categoriesResult] = await Promise.all([
+      getActiveProducts(),
+      listCategories(),
+    ]);
+    const categories = categoriesResult.ok ? categoriesResult.data!.map((c) => c.name) : [];
+    return <Order user={session.user} products={products} categories={categories} />;
   }
 
   if (view === "history") {
@@ -100,11 +110,13 @@ export default async function Page({ searchParams }: PageProps) {
   if (view === "penjual-menu") {
     if (role === "USER")  redirect("/home-user");
     if (role === "ADMIN") redirect("/admin-dashboard");
-    const [pendingCount, products] = await Promise.all([
+    const [pendingCount, products, categoriesResult] = await Promise.all([
       getPendingOrderCount(),
       getAllProducts(),
+      listCategories(),
     ]);
-    return <PenjualMenu pendingCount={pendingCount} initialProducts={products} />;
+    const categories = categoriesResult.ok ? categoriesResult.data!.map((c) => c.name) : [];
+    return <PenjualMenu pendingCount={pendingCount} initialProducts={products} categories={categories} />;
   }
 
   if (view === "penjual-laporan") {
@@ -135,6 +147,12 @@ export default async function Page({ searchParams }: PageProps) {
   if (view === "admin-daftar-penjual") {
     if (role !== "ADMIN") redirect("/");
     return <AdminDaftarPenjual />;
+  }
+
+  if (view === "admin-categories") {
+    if (role !== "ADMIN") redirect("/");
+    const result = await listCategories();
+    return <AdminCategories initialCategories={result.ok ? result.data! : []} dbUnavailable={!result.ok} />;
   }
 
   redirect("/");

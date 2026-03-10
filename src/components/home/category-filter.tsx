@@ -1,19 +1,19 @@
 "use client";
 
-import { MENU_CATEGORIES, type MenuCategory } from "@/src/lib/menu-data";
 import { cn } from "@/src/lib/utils";
 
 interface CategoryFilterProps {
-  active: MenuCategory;
-  onChange: (category: MenuCategory) => void;
+  categories: string[];
+  active: string;
+  onChange: (category: string) => void;
 }
 
-export function CategoryFilter({ active, onChange }: CategoryFilterProps) {
+export function CategoryFilter({ categories, active, onChange }: CategoryFilterProps) {
   return (
     <div>
       <h2 className="font-serif text-xl font-bold text-gray-900 mb-4">Kategori</h2>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {MENU_CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <button
             key={category}
             onClick={() => onChange(category)}

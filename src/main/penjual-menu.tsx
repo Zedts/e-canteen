@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { Plus, Trash2 } from "lucide-react";
 import { cn, formatCurrency } from "@/src/lib/utils";
-import { MENU_CATEGORIES, type MenuCategory } from "@/src/lib/menu-data";
 import type { Product } from "@/src/types/product";
 import { PenjualShell } from "@/src/components/penjual/penjual-shell";
 import { MenuItemModal, type MenuItemFormData } from "@/src/components/penjual/menu-item-modal";
@@ -13,7 +12,6 @@ import { createProduct, updateProduct, deleteProduct } from "@/src/lib/actions";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 const ALL_CATEGORY = "Semua" as const;
-type CategoryFilter = typeof ALL_CATEGORY | MenuCategory;
 type ModalMode = "add" | "edit" | null;
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -107,16 +105,17 @@ function MenuItemCard({ item, onToggle, onEdit, onDelete }: MenuItemCardProps) {
 interface Props {
   pendingCount: number;
   initialProducts: Product[];
+  categories: string[];
 }
 
-export default function PenjualMenu({ pendingCount, initialProducts }: Props) {
-  const [items, setItems] = useState<Product[]>(initialProducts);
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>(ALL_CATEGORY);
-  const [modalMode, setModalMode] = useState<ModalMode>(null);
-  const [editingItem, setEditingItem] = useState<Product | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+export default function PenjualMenu({ pendingCount, initialProducts, categories }: Props) {
+  const [items, setItems]               = useState<Product[]>(initialProducts);
+  const [activeCategory, setActiveCategory] = useState<string>(ALL_CATEGORY);
+  const [modalMode, setModalMode]       = useState<ModalMode>(null);
+  const [editingItem, setEditingItem]   = useState<Product | null>(null);
+  const [actionError, setActionError]   = useState<string | null>(null);
 
-  const categories: CategoryFilter[] = [ALL_CATEGORY, ...MENU_CATEGORIES];
+  const filterOptions = [ALL_CATEGORY, ...categories];
   const visibleItems =
     activeCategory === ALL_CATEGORY ? items : items.filter((i) => i.category === activeCategory);
 
@@ -224,7 +223,7 @@ export default function PenjualMenu({ pendingCount, initialProducts }: Props) {
         )}
 
         <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-          {categories.map((cat) => {
+          {filterOptions.map((cat) => {
             const isActive = activeCategory === cat;
             return (
               <button
@@ -266,6 +265,7 @@ export default function PenjualMenu({ pendingCount, initialProducts }: Props) {
         <MenuItemModal
           mode={modalMode}
           initialData={editingItem ?? undefined}
+          categories={categories}
           onSave={handleSave}
           onClose={closeModal}
         />

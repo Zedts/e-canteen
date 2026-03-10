@@ -5,13 +5,11 @@ import { createPortal } from "react-dom";
 import { X, ImageOff, Link as LinkIcon, Upload, Loader2 } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import type { Product } from "@/src/types/product";
-import { MENU_CATEGORIES, type MenuCategory } from "@/src/lib/menu-data";
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface MenuItemFormData {
   name:      string;
-  category:  MenuCategory;
+  category:  string;
   price:     string;
   imageUrl:  string;
   available: boolean;
@@ -20,6 +18,7 @@ export interface MenuItemFormData {
 interface MenuItemModalProps {
   mode:         "add" | "edit";
   initialData?: Product;
+  categories:   string[];
   onSave:       (data: MenuItemFormData) => void;
   onClose:      () => void;
 }
@@ -31,7 +30,7 @@ type FormErrors = Partial<Record<keyof MenuItemFormData, string>>;
 
 const EMPTY_FORM: MenuItemFormData = {
   name:      "",
-  category:  "Makanan Utama",
+  category:  "",
   price:     "",
   imageUrl:  "",
   available: true,
@@ -40,7 +39,7 @@ const EMPTY_FORM: MenuItemFormData = {
 function formFromItem(item: Product): MenuItemFormData {
   return {
     name:      item.name,
-    category:  item.category as MenuCategory,
+    category:  item.category,
     price:     String(item.price),
     imageUrl:  item.imageUrl,
     available: item.available,
@@ -76,10 +75,11 @@ function ImagePreview({ url }: { url: string }) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function MenuItemModal({ mode, initialData, onSave, onClose }: MenuItemModalProps) {
-  const [form,        setForm]        = useState<MenuItemFormData>(() =>
-    mode === "edit" && initialData ? formFromItem(initialData) : EMPTY_FORM,
-  );
+export function MenuItemModal({ mode, initialData, categories, onSave, onClose }: MenuItemModalProps) {
+  const [form,        setForm]        = useState<MenuItemFormData>(() => {
+    if (mode === "edit" && initialData) return formFromItem(initialData);
+    return { ...EMPTY_FORM, category: categories[0] ?? "" };
+  });
   const [errors,      setErrors]      = useState<FormErrors>({});
   const [imageMode,   setImageMode]   = useState<ImageMode>("url");
   const [filePreview, setFilePreview] = useState<string | null>(null);
@@ -222,10 +222,10 @@ export function MenuItemModal({ mode, initialData, onSave, onClose }: MenuItemMo
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Kategori</label>
             <select
               value={form.category}
-              onChange={(e) => setField("category", e.target.value as MenuCategory)}
+              onChange={(e) => setField("category", e.target.value)}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-brand-500 transition-colors bg-white"
             >
-              {MENU_CATEGORIES.map((cat) => (
+              {categories.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>

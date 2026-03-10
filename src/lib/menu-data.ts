@@ -1,12 +1,3 @@
-export type MenuCategory = "Makanan Utama" | "Cemilan" | "Minuman" | "Menu Sehat";
-
-export const MENU_CATEGORIES: MenuCategory[] = [
-  "Makanan Utama",
-  "Cemilan",
-  "Minuman",
-  "Menu Sehat",
-];
-
 // --- Time Slots ---
 
 export interface TimeSlot {

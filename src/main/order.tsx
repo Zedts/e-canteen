@@ -10,12 +10,7 @@ import { CartSidebar } from "@/src/components/order/cart-sidebar";
 import { CartCheckoutBar } from "@/src/components/order/cart-checkout-bar";
 import { CheckoutStep } from "@/src/components/order/checkout-step";
 import { useCartContext } from "@/src/context/cart-context";
-import {
-  MENU_CATEGORIES,
-  TIME_SLOTS,
-  type MenuCategory,
-  type TimeSlot,
-} from "@/src/lib/menu-data";
+import { TIME_SLOTS, type TimeSlot } from "@/src/lib/menu-data";
 import type { Product } from "@/src/types/product";
 
 interface OrderProps {
@@ -26,19 +21,19 @@ interface OrderProps {
     balance: number;
     role:    "USER" | "PENJUAL" | "ADMIN";
   };
-  products: Product[];
+  products:   Product[];
+  categories: string[];
 }
 
 type OrderStep = "selecting" | "checkout";
 
-export default function Order({ user, products }: OrderProps) {
-  const [step, setStep] = useState<OrderStep>("selecting");
-  const [activeCategory, setActiveCategory] = useState<MenuCategory>(
-    MENU_CATEGORIES[0],
-  );
+export default function Order({ user, products, categories }: OrderProps) {
+  const [step, setStep]         = useState<OrderStep>("selecting");
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot>(TIME_SLOTS[0]);
   const { cart, cartEntries, cartTotal, totalItems, add, remove, removeAll } =
     useCartContext();
+
+  const [activeCategory, setActiveCategory] = useState<string>(categories[0] ?? "");
 
   const filteredItems = products.filter(
     (item) => item.category === activeCategory,
@@ -74,6 +69,7 @@ export default function Order({ user, products }: OrderProps) {
               </h2>
 
               <CategoryFilter
+                categories={categories}
                 active={activeCategory}
                 onChange={setActiveCategory}
               />

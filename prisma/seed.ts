@@ -33,10 +33,22 @@ async function seed() {
 
   console.log("Seeding database...");
 
-  // Clear in dependency order: Orders cascade to OrderItems, then Products, then Users
+  // Clear in dependency order: Orders cascade to OrderItems, then Products, then Categories, then Users
   await prisma.order.deleteMany();
   await prisma.product.deleteMany();
+  await prisma.category.deleteMany();
   await prisma.user.deleteMany();
+
+  // --- Categories ---
+
+  await Promise.all([
+    prisma.category.create({ data: { name: "Makanan Utama" } }),
+    prisma.category.create({ data: { name: "Cemilan" } }),
+    prisma.category.create({ data: { name: "Minuman" } }),
+    prisma.category.create({ data: { name: "Menu Sehat" } }),
+  ]);
+
+  console.log("Categories seeded: 4");
 
   // --- Products ---
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { MENU_CATEGORIES, type MenuCategory } from "@/src/lib/menu-data";
 import type { Product } from "@/src/types/product";
 import { Navbar }         from "@/src/components/home/navbar";
 import { BottomNav }      from "@/src/components/home/bottom-nav";
@@ -19,15 +18,17 @@ interface HomeUserProps {
     balance: number;
     role:    "USER" | "PENJUAL" | "ADMIN";
   };
-  products: Product[];
+  products:   Product[];
+  categories: string[];
 }
 
 type HomeStep = "home" | "topup";
 
-export default function HomeUser({ user, products }: HomeUserProps) {
-  const [step, setStep]                   = useState<HomeStep>("home");
-  const [activeCategory, setActiveCategory] = useState<MenuCategory>(MENU_CATEGORIES[0]);
-  const [balance, setBalance]             = useState(user.balance);
+export default function HomeUser({ user, products, categories }: HomeUserProps) {
+  const [step, setStep]       = useState<HomeStep>("home");
+  const [balance, setBalance] = useState(user.balance);
+
+  const [activeCategory, setActiveCategory] = useState<string>(categories[0] ?? "");
 
   const currentUser = { ...user, balance };
 
@@ -60,6 +61,7 @@ export default function HomeUser({ user, products }: HomeUserProps) {
           <PreorderBanner />
 
           <CategoryFilter
+            categories={categories}
             active={activeCategory}
             onChange={setActiveCategory}
           />

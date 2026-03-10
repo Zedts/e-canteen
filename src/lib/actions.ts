@@ -2,7 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { db } from "./db";
-import type { Product } from "@/src/types/product";
+import type { Product, Category } from "@/src/types/product";
 import type { AdminStats, AdminUser } from "@/src/types/admin";
 import type {
   StatData,
@@ -532,5 +532,63 @@ export async function cancelOrder(orderId: string, userId: string): Promise<Acti
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Gagal membatalkan pesanan.";
     return { ok: false, error: msg };
+  }
+}
+
+// ─── Categories ───────────────────────────────────────────────────────────────
+
+export async function listCategories(): Promise<ActionResult<Category[]>> {
+  try {
+    const rows = await db.category.findMany({ orderBy: { name: "asc" } });
+    return { ok: true, data: rows };
+  } catch {
+    return { ok: false, error: "Gagal memuat kategori." };
+  }
+}
+
+export async function createCategory(name: string): Promise<ActionResult<Category>> {
+  const trimmed = name.trim();
+  if (!trimmed) return { ok: false, error: "Nama kategori wajib diisi." };
+
+  try {
+    const existing = await db.category.findUnique({ where: { name: trimmed } });
+    if (existing) return { ok: false, error: "Kategori dengan nama ini sudah ada." };
+
+    const category = await db.category.create({ data: { name: trimmed } });
+    return { ok: true, data: category };
+  } catch {
+    return { ok: false, error: "Gagal membuat kategori." };
+  }
+}
+
+export async function updateCategory(id: string, name: string): Promise<ActionResult<Category>> {
+  const trimmed = name.trim();
+  if (!trimmed) return { ok: false, error: "Nama kategori wajib diisi." };
+
+  try {
+    const conflict = await db.category.findFirst({ where: { name: trimmed, NOT: { id } } });
+    if (conflict) return { ok: false, error: "Kategori dengan nama ini sudah ada." };
+
+    const category = await db.category.update({ where: { id }, data: { name: trimmed } });
+    return { ok: true, data: category };
+  } catch {
+    return { ok: false, error: "Gagal memperbarui kategori." };
+  }
+}
+
+export async function deleteCategory(id: string): Promise<ActionResult> {
+  try {
+    const category = await db.category.findUnique({ where: { id }, select: { name: true } });
+    if (!category) return { ok: false, error: "Kategori tidak ditemukan." };
+
+    const productCount = await db.product.count({ where: { category: category.name } });
+    if (productCount > 0) {
+      return { ok: false, error: `Kategori masih digunakan oleh ${productCount} produk. Pindahkan atau hapus produk tersebut terlebih dahulu.` };
+    }
+
+    await db.category.delete({ where: { id } });
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Gagal menghapus kategori." };
   }
 }

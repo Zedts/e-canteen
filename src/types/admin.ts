@@ -1,4 +1,4 @@
-export type AdminPage = "dashboard" | "users" | "daftar-penjual";
+export type AdminPage = "dashboard" | "users" | "daftar-penjual" | "categories";
 
 export interface AdminUser {
   id: string;

@@ -11,9 +11,10 @@ import type { AdminPage } from "@/src/types/admin";
 // ─── Route map ────────────────────────────────────────────────────────────────
 
 const PAGE_ROUTES: Record<AdminPage, string> = {
-  dashboard:       "/admin-dashboard",
-  users:           "/admin-users",
+  dashboard:        "/admin-dashboard",
+  users:            "/admin-users",
   "daftar-penjual": "/admin-daftar-penjual",
+  categories:       "/admin-categories",
 };
 
 // ─── Props ────────────────────────────────────────────────────────────────────
