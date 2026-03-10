@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { PenjualSidebar } from "./penjual-sidebar";
 import { PenjualHeader } from "./penjual-header";
 import { ConfirmDialog } from "@/src/components/ui/confirm-dialog";
 import type { PenjualPage } from "@/src/types/penjual";
+
+const SIDEBAR_STORAGE_KEY = "penjual-sidebar-collapsed";
+
+// ─── Sidebar collapse persistence (useSyncExternalStore) ──────────────────────
+
+function subscribeSidebar(cb: () => void) {
+  window.addEventListener("storage", cb);
+  return () => window.removeEventListener("storage", cb);
+}
+const getSidebarSnapshot = () => localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true";
+const getSidebarServerSnapshot = () => false;
 
 // ─── Route map ────────────────────────────────────────────────────────────────
 
@@ -34,7 +45,11 @@ export function PenjualShell({
 }: PenjualShellProps) {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const isSidebarCollapsed = useSyncExternalStore(
+    subscribeSidebar,
+    getSidebarSnapshot,
+    getSidebarServerSnapshot,
+  );
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   function navigateTo(page: PenjualPage) {
@@ -51,7 +66,11 @@ export function PenjualShell({
         onNavigate={navigateTo}
         onLogout={() => setShowLogoutDialog(true)}
         onMobileClose={() => setIsMobileMenuOpen(false)}
-        onToggleCollapse={() => setIsSidebarCollapsed((v) => !v)}
+        onToggleCollapse={() => {
+          const next = !isSidebarCollapsed;
+          localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
+          window.dispatchEvent(new StorageEvent("storage", { key: SIDEBAR_STORAGE_KEY }));
+        }}
       />
 
       <div className="flex-1 flex flex-col min-w-0">
