@@ -6,9 +6,10 @@ interface WalletCardProps {
     name?: string | null;
     balance: number;
   };
+  onTopUp: () => void;
 }
 
-export function WalletCard({ user }: WalletCardProps) {
+export function WalletCard({ user, onTopUp }: WalletCardProps) {
   const greeting = getGreeting();
   const initials  = getInitials(user.name ?? "?");
 
@@ -38,7 +39,10 @@ export function WalletCard({ user }: WalletCardProps) {
           <div className="w-14 h-14 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center font-bold text-lg shadow-sm">
             {initials}
           </div>
-          <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 transition-all rounded-full py-2.5 px-6 font-medium text-sm flex items-center gap-2">
+          <button
+            onClick={onTopUp}
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 transition-all rounded-full py-2.5 px-6 font-medium text-sm flex items-center gap-2"
+          >
             <Plus className="w-4 h-4" />
             Isi Saldo
           </button>

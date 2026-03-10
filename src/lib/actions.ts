@@ -489,6 +489,31 @@ export async function getReadyOrdersForUser(userId: string): Promise<ReadyOrder[
   }
 }
 
+// ─── Top up ───────────────────────────────────────────────────────────────────
+
+const TOPUP_MIN = 10_000;
+const TOPUP_MAX = 10_000_000;
+
+export async function topUpBalance(
+  userId: string,
+  amount: number,
+): Promise<ActionResult<{ newBalance: number }>> {
+  if (!Number.isInteger(amount) || amount < TOPUP_MIN || amount > TOPUP_MAX) {
+    return { ok: false, error: "Nominal isi saldo tidak valid." };
+  }
+
+  try {
+    const updated = await db.user.update({
+      where: { id: userId },
+      data: { balance: { increment: amount } },
+      select: { balance: true },
+    });
+    return { ok: true, data: { newBalance: updated.balance } };
+  } catch {
+    return { ok: false, error: "Gagal melakukan isi saldo. Coba lagi." };
+  }
+}
+
 // ─── Cancel order ─────────────────────────────────────────────────────────────
 
 /** Cancel a PREPARING order and refund the total back to the user's balance. */
